@@ -81,17 +81,22 @@
       if (!selected.isGeometryEditable() || selected.isPoint()) {
         continue;
       }
-      let oldGeometry = selected.geometry.clone();
-      let newGeometry = selected.geometry.clone();
+      try {
+        let oldGeometry = selected.geometry.clone();
+        let newGeometry = selected.geometry.clone();
 
-      let scale = Math.sqrt((x + 5) / oldGeometry.getGeodesicArea(WazeApi.map.getProjectionObject()));
-      if (scale < 1 && orMore) {
-        continue;
+        let scale = Math.sqrt((x + 5) / oldGeometry.getGeodesicArea(WazeApi.map.getProjectionObject()));
+        if (scale < 1 && orMore) {
+          continue;
+        }
+        newGeometry.resize(scale, newGeometry.getCentroid());
+
+        let action = new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, newGeometry);
+        WazeApi.model.actionManager.add(action);
+
+      } catch (e) {
+        console.error(e);
       }
-      newGeometry.resize(scale, newGeometry.getCentroid());
-
-      let action = new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, newGeometry);
-      WazeApi.model.actionManager.add(action);
     }
   }
   // Orthogonalize place
@@ -112,15 +117,20 @@
       }
 
       let oldGeometry = selected.geometry.clone();
-      //console.log(selected);
-      let newGeometry = WazeWrap.Util.OrthogonalizeGeometry(selected.geometry.clone().components[0].components);
 
-      if (!compare(oldGeometry.components[0].components, newGeometry)){
-        selected.geometry.components[0].components = [].concat(newGeometry);
-        selected.geometry.components[0].clearBounds();
+      try {
+        let newGeometry = WazeWrap.Util.OrthogonalizeGeometry(selected.geometry.clone().components[0].components);
 
-        let action = new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, selected.geometry);
-        WazeApi.model.actionManager.add(action);
+        if (!compare(oldGeometry.components[0].components, newGeometry)) {
+          selected.geometry.components[0].components = [].concat(newGeometry);
+          selected.geometry.components[0].clearBounds();
+
+          let action = new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, selected.geometry);
+          WazeApi.model.actionManager.add(action);
+        }
+      } catch (e) {
+        console.log(selected);
+        console.error(e);
       }
     }
     return false;
@@ -142,13 +152,17 @@
         continue;
       }
 
-      let oldGeometry = selected.geometry.clone();
-      let ls = new OL.Geometry.LineString(oldGeometry.components[0].components);
-      ls = ls.simplify(factor);
-      let newGeometry = new OL.Geometry.Polygon(new OL.Geometry.LinearRing(ls.components));
+      try {
+        let oldGeometry = selected.geometry.clone();
+        let ls = new OL.Geometry.LineString(oldGeometry.components[0].components);
+        ls = ls.simplify(factor);
+        let newGeometry = new OL.Geometry.Polygon(new OL.Geometry.LinearRing(ls.components));
 
-      if (newGeometry.components[0].components.length < oldGeometry.components[0].components.length) {
-        WazeApi.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, newGeometry));
+        if (newGeometry.components[0].components.length < oldGeometry.components[0].components.length) {
+          WazeApi.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, newGeometry));
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
     return false;
@@ -274,9 +288,9 @@
       '<div class="form-group">'+
       '<label class="control-label">'+ NAME +'</label>' +
       '<div class="button-toolbar">' +
-      '<button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button>' +
-      '<button type="button" id="E40-simplify" class="btn btn-default">〽️</button>' +
-      '<button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button>' +
+      '<p><button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button> Orthogonalize</p>' +
+      '<p><button type="button" id="E40-simplify" class="btn btn-default">〽️</button> Simplify</p>' +
+      '<p><button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button> Change Square</p>' +
       '</div>' +
       '</div>'
     ;
