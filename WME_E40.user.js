@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40
-// @version      0.0.1
+// @version      0.0.2
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -12,6 +12,8 @@
 // @exclude      https://beta.waze.com/user/editor*
 // @grant        none
 // @require      https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
+// @supportURL   https://github.com/AntonShevchuk/wme-e40/issues
+// @namespace    https://greasyfork.org/users/227648
 // ==/UserScript==
 
 /* jshint esversion: 6 */
@@ -26,13 +28,22 @@
   const LOCALE = I18n.currentLocale();
   const translation = {
     'en': {
-      title: 'Geometry'
+      title: 'Geometry',
+      orthogonalize: 'Orthogonalize',
+      simplify: 'Simplify',
+      scale: 'Scale',
     },
     'uk': {
       title: 'Геометрія',
+      orthogonalize: 'Вирівняти',
+      simplify: 'Спростити',
+      scale: 'Масштабувати',
     },
     'ru': {
-      title: 'Геометрия'
+      title: 'Геометрия',
+      orthogonalize: 'Выровнять',
+      simplify: 'Упростить',
+      scale: 'Масштабировать',
     }
   };
 
@@ -50,29 +61,33 @@
     C: {
       title: '500m²',
       shortcut: 'S+51',
-      callback: () => scale(500)
+      callback: () => scaleSelected(500)
     },
     D: {
       title: '650m²',
       shortcut: 'S+52',
-      callback: () => scale(650)
+      callback: () => scaleSelected(650)
     },
     E: {
-      title: '>650m²',
+      title: '>650',
       shortcut: 'S+53',
-      callback: () => scale(650, true)
+      callback: () => scaleSelected(650, true)
     }
   };
 
   let WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry');
 
   // Scale place to X m²
-  function scale(x, orMore = false) {
+  function scaleSelected(x, orMore = false) {
     if (!WazeWrap.hasPlaceSelected()) {
       return;
     }
     let selected = WazeApi.selectionManager.getSelectedFeatures().map((x) => x.model);
     scaleArray(selected, x, orMore);
+    return false;
+  }
+  function scaleAll(x = 650) {
+    scaleArray(WazeApi.model.venues.getObjectArray(), x, true);
     return false;
   }
   function scaleArray(elements, x, orMore = false) {
@@ -95,7 +110,7 @@
         WazeApi.model.actionManager.add(action);
 
       } catch (e) {
-        console.error(e);
+        log('skipped');
       }
     }
   }
@@ -109,6 +124,16 @@
     orthogonalizeArray(selected);
     return false;
   }
+  function orthogonalizeAll() {
+    let selected = WazeApi.model.venues.getObjectArray();
+    // skip parking, natural and outdoors
+    // TODO: make options for filters
+    selected = selected.filter(model => model.getMainCategory() !== 'OUTDOORS');
+    selected = selected.filter(model => model.getMainCategory() !== 'PARKING_LOT');
+    selected = selected.filter(model => model.getMainCategory() !== 'NATURAL_FEATURES');
+    orthogonalizeArray(selected);
+    return false;
+  }
   function orthogonalizeArray(elements) {
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i];
@@ -116,9 +141,8 @@
         continue;
       }
 
-      let oldGeometry = selected.geometry.clone();
-
       try {
+        let oldGeometry = selected.geometry.clone();
         let newGeometry = WazeWrap.Util.OrthogonalizeGeometry(selected.geometry.clone().components[0].components);
 
         if (!compare(oldGeometry.components[0].components, newGeometry)) {
@@ -129,8 +153,7 @@
           WazeApi.model.actionManager.add(action);
         }
       } catch (e) {
-        console.log(selected);
-        console.error(e);
+        log('skipped');
       }
     }
     return false;
@@ -143,6 +166,10 @@
 
     let selected = WazeApi.selectionManager.getSelectedFeatures().map((x) => x.model);
     simplifyArray(selected, factor);
+    return false;
+  }
+  function simplifyAll() {
+    simplifyArray(WazeApi.model.venues.getObjectArray());
     return false;
   }
   function simplifyArray(elements, factor = 8) {
@@ -162,7 +189,7 @@
           WazeApi.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, WazeApi.model.venues, oldGeometry, newGeometry));
         }
       } catch (e) {
-        console.error(e);
+        log('skipped');
       }
     }
     return false;
@@ -288,9 +315,9 @@
       '<div class="form-group">'+
       '<label class="control-label">'+ NAME +'</label>' +
       '<div class="button-toolbar">' +
-      '<p><button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button> Orthogonalize</p>' +
-      '<p><button type="button" id="E40-simplify" class="btn btn-default">〽️</button> Simplify</p>' +
-      '<p><button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button> Change Square</p>' +
+      '<p><button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button> ' + I18n.t(NAME +'.orthogonalize') + '</p>' +
+      '<p><button type="button" id="E40-simplify" class="btn btn-default">〽️</button> ' + I18n.t(NAME +'.simplify') + '</p>' +
+      '<p><button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button> ' + I18n.t(NAME +'.scale') + '</p>' +
       '</div>' +
       '</div>'
     ;
@@ -305,18 +332,9 @@
       let btn = $(this).data(NAME);
       return buttons[btn].callback();
     });
-    $('#E40-orthogonalize').on('click', function() {
-      orthogonalizeArray(WazeApi.model.venues.getObjectArray());
-      return false;
-    });
-    $('#simplify').on('click', function() {
-      simplifyArray(WazeApi.model.venues.getObjectArray());
-      return false;
-    });
-    $('#E40-650').on('click', function() {
-      scaleArray(WazeApi.model.venues.getObjectArray(), 650, true);
-      return false;
-    })
+    $('#E40-orthogonalize').on('click', orthogonalizeAll);
+    $('#E40-simplify').on('click', simplifyAll);
+    $('#E40-650').on('click', () => scaleAll(650));
   }
   // Initial shortcuts
   function initShortcuts() {
