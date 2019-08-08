@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40
-// @version      0.0.2
+// @version      0.0.4
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -77,6 +77,20 @@
 
   let WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry');
 
+  /**
+   * Get all available POI except chosen categories
+   * @param {Array} except
+   * @return {Array}
+   */
+  function getAllPOI(except = []) {
+    let selected = WazeApi.model.venues.getObjectArray();
+    // filter by main category
+    if (except.length) {
+      selected = selected.filter(model => except.indexOf(model.getMainCategory()) === -1);
+    }
+    return selected;
+  }
+
   // Scale place to X m²
   function scaleSelected(x, orMore = false) {
     if (!WazeWrap.hasPlaceSelected()) {
@@ -125,13 +139,9 @@
     return false;
   }
   function orthogonalizeAll() {
-    let selected = WazeApi.model.venues.getObjectArray();
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    selected = selected.filter(model => model.getMainCategory() !== 'OUTDOORS');
-    selected = selected.filter(model => model.getMainCategory() !== 'PARKING_LOT');
-    selected = selected.filter(model => model.getMainCategory() !== 'NATURAL_FEATURES');
-    orthogonalizeArray(selected);
+    orthogonalizeArray(getAllPOI(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']));
     return false;
   }
   function orthogonalizeArray(elements) {
@@ -169,7 +179,9 @@
     return false;
   }
   function simplifyAll() {
-    simplifyArray(WazeApi.model.venues.getObjectArray());
+    // skip parking, natural and outdoors
+    // TODO: make options for filters
+    simplifyArray(getAllPOI(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']));
     return false;
   }
   function simplifyArray(elements, factor = 8) {
@@ -303,27 +315,22 @@
   // Initial Translation for UI and Shortcuts
   function initTranslation() {
     I18n.translations[LOCALE][NAME] = translation[LOCALE] || translation.en;
-
-    // Translation for Shortcuts
-    I18n.translations[LOCALE].keyboard_shortcuts.groups[NAME] = [];
-    I18n.translations[LOCALE].keyboard_shortcuts.groups[NAME].description = NAME;
-    I18n.translations[LOCALE].keyboard_shortcuts.groups[NAME].members = [];
   }
   // Initial UI
   function initUI() {
     let html =
       '<div class="form-group">'+
-      '<label class="control-label">'+ NAME +'</label>' +
+      '<label class="control-label">'+ NAME + ' ' + I18n.t(NAME).title + '</label>' +
       '<div class="button-toolbar">' +
-      '<p><button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button> ' + I18n.t(NAME +'.orthogonalize') + '</p>' +
-      '<p><button type="button" id="E40-simplify" class="btn btn-default">〽️</button> ' + I18n.t(NAME +'.simplify') + '</p>' +
-      '<p><button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button> ' + I18n.t(NAME +'.scale') + '</p>' +
+      '<p><button type="button" id="E40-orthogonalize" class="btn btn-default">🔲</button> ' + I18n.t(NAME).orthogonalize + '</p>' +
+      '<p><button type="button" id="E40-simplify" class="btn btn-default">〽️</button> ' + I18n.t(NAME).simplify + '</p>' +
+      '<p><button type="button" id="E40-650" class="btn btn-default">&gt;650m²</button> ' + I18n.t(NAME).scale + '</p>' +
       '</div>' +
       '</div>'
     ;
 
     new WazeWrap.Interface.Tab(NAME, html, function() {
-      log('tab');
+      log('tab was created');
     });
   }
   // Initial button handlers, init it once
@@ -338,14 +345,9 @@
   }
   // Initial shortcuts
   function initShortcuts() {
-    WazeApi.accelerators.Groups[NAME] = [];
-    WazeApi.accelerators.Groups[NAME].members = [];
-
     for (let btn in buttons) {
       let name = NAME + 'Button' + buttons[btn].title;
-      WazeApi.accelerators.addAction(name, { group: NAME });
-      WazeApi.accelerators.events.register(name, null, buttons[btn].callback);
-      WazeApi.accelerators.registerShortcut(buttons[btn].shortcut, name);
+      new WazeWrap.Interface.Shortcut(name, buttons[btn].title, NAME, NAME + ' ' + I18n.t(NAME).title, buttons[btn].shortcut, buttons[btn].callback, null).add();
     }
   }
   // Apply CSS styles
