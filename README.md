@@ -1,6 +1,6 @@
 # WME E40
 User script for Waze Map Editor.
-Create additional panel with buttons for setup POI properties in one click.
+Create additional panel with buttons for change POI geometry in one click.
 
 ![](screenshot.png)
 
