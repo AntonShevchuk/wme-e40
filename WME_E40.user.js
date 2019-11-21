@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.2.1
+// @version      0.2.2
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -20,7 +20,16 @@
 // ==/UserScript==
 
 /* jshint esversion: 6 */
-/* global require, W, I18n, OL, WazeWrap, APIHelper, APIHelperUI */
+/* global window */
+/* global console */
+/* global require */
+/* global $ */
+/* global W */
+/* global OL */
+/* global I18n */
+/* global WazeWrap */
+/* global APIHelper */
+/* global APIHelperUI */
 
 (function ($) {
   'use strict';
@@ -115,7 +124,7 @@
     }
   };
 
-  let WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry');
+  let WazeActionUpdateFeatureGeometry;
 
   /**
    * Get selected Area POI
@@ -245,6 +254,9 @@
   ;
 
   function ready() {
+    // Require Waze component
+    WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry');
+
     helper = new APIHelperUI(NAME);
 
     panel = helper.createPanel(I18n.t(NAME).title);
