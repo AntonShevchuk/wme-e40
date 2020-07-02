@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.2.3
+// @version      0.2.4
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -23,7 +23,7 @@
 /* global require */
 /* global $ */
 /* global W */
-/* global OL */
+/* global OpenLayers */
 /* global I18n */
 /* global WazeWrap */
 /* global APIHelper */
@@ -35,6 +35,8 @@
   let helper;
   let panel;
   let tab;
+
+  let OL = OpenLayers;
 
   // Script name, uses as unique index
   const NAME = 'E40';
