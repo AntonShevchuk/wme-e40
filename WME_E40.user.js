@@ -4,10 +4,10 @@
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
-// @include      https://www.waze.com/editor*
-// @include      https://www.waze.com/*/editor*
-// @include      https://beta.waze.com/editor*
-// @include      https://beta.waze.com/*/editor*
+// @match        https://www.waze.com/editor*
+// @match        https://www.waze.com/*/editor*
+// @match        https://beta.waze.com/editor*
+// @match        https://beta.waze.com/*/editor*
 // @exclude      https://www.waze.com/user/editor*
 // @exclude      https://beta.waze.com/user/editor*
 // @grant        none
