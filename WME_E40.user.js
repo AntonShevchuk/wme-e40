@@ -43,18 +43,21 @@
   const TRANSLATION = {
     'en': {
       title: 'Geometry',
+      description: 'Change geometry in the current view area',
       orthogonalize: 'Orthogonalize',
       simplify: 'Simplify',
       scale: 'Scale',
     },
     'uk': {
       title: 'Геометрія',
+      description: 'Змінити геометрію об’єктів у поточному розташуванні',
       orthogonalize: 'Вирівняти',
       simplify: 'Спростити',
       scale: 'Масштабувати',
     },
     'ru': {
       title: 'Геометрия',
+      description: 'Изменить геометрию объектов в текущем расположении',
       orthogonalize: 'Выровнять',
       simplify: 'Упростить',
       scale: 'Масштабировать',
@@ -479,7 +482,11 @@
     panel.addButtons(panelButtons)
 
     if (W.loginManager.user.getRank() > 2) {
-      tab = helper.createTab(I18n.t(NAME).title, null, '<i class="w-icon panel-header-component-icon w-icon-polygon"></i>')
+      tab = helper.createTab(
+        I18n.t(NAME).title,
+        I18n.t(NAME).description,
+        '<i class="w-icon panel-header-component-icon w-icon-polygon"></i>'
+      )
       tab.addButtons(tabButtons)
       tab.inject()
     }
