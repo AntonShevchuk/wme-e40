@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.3.3
+// @version      0.3.4
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -506,7 +506,7 @@
     }
 
     element.prepend(panel.html())
-    //updateLabel()
+    updateLabel()
   }
 
   function updateLabel () {
