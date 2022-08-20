@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.3.4
+// @version      0.4.0
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -47,6 +47,7 @@
       orthogonalize: 'Orthogonalize',
       simplify: 'Simplify',
       scale: 'Scale',
+      copy: 'Copy',
     },
     'uk': {
       title: 'Геометрія',
@@ -54,6 +55,7 @@
       orthogonalize: 'Вирівняти',
       simplify: 'Спростити',
       scale: 'Масштабувати',
+      copy: 'Копіювати',
     },
     'ru': {
       title: 'Геометрия',
@@ -61,6 +63,7 @@
       orthogonalize: 'Выровнять',
       simplify: 'Упростить',
       scale: 'Масштабировать',
+      copy: 'Копировать',
     }
   }
 
@@ -101,6 +104,12 @@
       description: I18n.t(NAME).scale,
       shortcut: 'S+53',
       callback: () => scaleSelected(650, true)
+    },
+    F: {
+      title: '<i class="fa fa-clone" aria-hidden="true"></i>',
+      description: I18n.t(NAME).copy,
+      shortcut: 'S+53',
+      callback: () => copyPlace()
     }
   }
 
@@ -126,6 +135,9 @@
   }
 
   let WazeActionUpdateFeatureGeometry
+  let WazeActionUpdateFeatureAddress
+  let WazeFeatureVectorLandmark
+  let WazeActionAddLandmark
 
   /**
    * Get selected Area POI
@@ -213,7 +225,7 @@
       upperThreshold = Math.cos(nomthreshold * Math.PI / 180)
 
     function Orthogonalize () {
-      var nodes = geometry,
+      let nodes = geometry,
         points = nodes.slice(0, -1).map(function (n) {
           let p = n.clone().transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'))
           p.y = lat2latp(p.y)
@@ -228,7 +240,7 @@
         for (i = 0; i < 1000; i++) {
           motions = points.map(calcMotion)
 
-          var tmp = addPoints(points[corner.i], motions[corner.i])
+          let tmp = addPoints(points[corner.i], motions[corner.i])
           points[corner.i].x = tmp.x
           points[corner.i].y = tmp.y
 
@@ -237,7 +249,7 @@
             break
         }
 
-        var n = points[corner.i]
+        let n = points[corner.i]
         n.y = latp2lat(n.y)
         let pp = n.transform(new OpenLayers.Projection('EPSG:4326'), new OpenLayers.Projection('EPSG:900913'))
 
@@ -252,7 +264,7 @@
 
         return nodes
       } else {
-        var best,
+        let best,
           originalPoints = nodes.slice(0, -1).map(function (n) {
             let p = n.clone().transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'))
             p.y = lat2latp(p.y)
@@ -462,6 +474,69 @@
     return true
   }
 
+  function copyPlace(){
+    let venues = APIHelper.getSelectedVenues()
+
+    if (venues.length > 0) {
+      let oldPlace = venues[0];
+      let newPlace = new WazeFeatureVectorLandmark;
+      newPlace.attributes.name = oldPlace.attributes.name + ' (copy)';
+      newPlace.attributes.phone = oldPlace.attributes.phone;
+      newPlace.attributes.url = oldPlace.attributes.url;
+      newPlace.attributes.categories = [].concat(oldPlace.attributes.categories);
+      newPlace.attributes.aliases = [].concat(oldPlace.attributes.aliases);
+      newPlace.attributes.description = oldPlace.attributes.description;
+      newPlace.attributes.houseNumber = oldPlace.attributes.houseNumber;
+      newPlace.attributes.lockRank = oldPlace.attributes.lockRank;
+      newPlace.attributes.geometry = oldPlace.attributes.geometry.clone();
+
+      if (oldPlace.attributes.geometry.toString().match(/^POLYGON/)) {
+        for (let i = 0; i < newPlace.attributes.geometry.components[0].components.length - 1; i++) {
+          newPlace.attributes.geometry.components[0].components[i].x += 5
+          newPlace.attributes.geometry.components[0].components[i].y += 5
+        }
+      } else {
+        // Geometry not used for points
+        // But who knows?
+        newPlace.attributes.geometry.x += 5
+        newPlace.attributes.geometry.y += 5
+      }
+
+      newPlace.attributes.services = [].concat(oldPlace.attributes.services);
+      newPlace.attributes.openingHours = [].concat(oldPlace.attributes.openingHours);
+      newPlace.attributes.streetID = oldPlace.attributes.streetID;
+
+      if (oldPlace.attributes.categories.includes('GAS_STATION')) {
+        newPlace.attributes.brand = oldPlace.attributes.brand
+      }
+
+      if (oldPlace.attributes.categories.includes('PARKING_LOT')) {
+        newPlace.attributes.categoryAttributes.PARKING_LOT = {}
+
+        let attributes = oldPlace.attributes.categoryAttributes.PARKING_LOT
+        if ((attributes.lotType != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
+        if ((attributes.canExitWhileClosed != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed = oldPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed
+        if ((attributes.costType != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.costType = oldPlace.attributes.categoryAttributes.PARKING_LOT.costType
+        if ((attributes.estimatedNumberOfSpots != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots = oldPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots
+        if ((attributes.hasTBR != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR = oldPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR
+        if ((attributes.lotType != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
+        if ((attributes.parkingType != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.parkingType = oldPlace.attributes.categoryAttributes.PARKING_LOT.parkingType
+        if ((attributes.paymentType != null))
+          newPlace.attributes.categoryAttributes.PARKING_LOT.paymentType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.paymentType)
+      }
+
+      W.model.actionManager.add(new WazeActionAddLandmark(newPlace));
+      W.selectionManager.setSelectedModels(newPlace);
+    }
+  }
+
   // Simple console.log wrapper
   function log (message) {
     console.log(NAME + ': ' + message)
@@ -473,8 +548,12 @@
     .on('landmark-collection.apihelper', createPanel)
 
   function ready () {
-    // Require Waze component
+    // Require Waze components
     WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry')
+    WazeActionUpdateFeatureAddress = require('Waze/Action/UpdateFeatureAddress')
+    WazeFeatureVectorLandmark = require('Waze/Feature/Vector/Landmark')
+    WazeActionAddLandmark = require('Waze/Action/AddLandmark')
+
 
     helper = new APIHelperUI(NAME)
 
