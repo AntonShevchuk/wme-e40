@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.4.0
+// @version      0.4.1
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -108,8 +108,8 @@
     F: {
       title: '<i class="fa fa-clone" aria-hidden="true"></i>',
       description: I18n.t(NAME).copy,
-      shortcut: 'S+53',
-      callback: () => copyPlace()
+      shortcut: 'S+54',
+      callback: () => copyPlaces()
     }
   }
 
@@ -460,7 +460,11 @@
     return false
   }
 
-  // Compare two polygons point-by-point
+  /**
+   * Compare two polygons point-by-point
+   *
+   * @return boolean
+   */
   function compare (geo1, geo2) {
     if (geo1.length !== geo2.length) {
       return false
@@ -474,67 +478,78 @@
     return true
   }
 
-  function copyPlace(){
+  /**
+   * Copy selected places
+   * Last of them will be chosen
+   */
+  function copyPlaces(){
     let venues = APIHelper.getSelectedVenues()
 
-    if (venues.length > 0) {
-      let oldPlace = venues[0];
-      let newPlace = new WazeFeatureVectorLandmark;
-      newPlace.attributes.name = oldPlace.attributes.name + ' (copy)';
-      newPlace.attributes.phone = oldPlace.attributes.phone;
-      newPlace.attributes.url = oldPlace.attributes.url;
-      newPlace.attributes.categories = [].concat(oldPlace.attributes.categories);
-      newPlace.attributes.aliases = [].concat(oldPlace.attributes.aliases);
-      newPlace.attributes.description = oldPlace.attributes.description;
-      newPlace.attributes.houseNumber = oldPlace.attributes.houseNumber;
-      newPlace.attributes.lockRank = oldPlace.attributes.lockRank;
-      newPlace.attributes.geometry = oldPlace.attributes.geometry.clone();
-
-      if (oldPlace.attributes.geometry.toString().match(/^POLYGON/)) {
-        for (let i = 0; i < newPlace.attributes.geometry.components[0].components.length - 1; i++) {
-          newPlace.attributes.geometry.components[0].components[i].x += 5
-          newPlace.attributes.geometry.components[0].components[i].y += 5
-        }
-      } else {
-        // Geometry not used for points
-        // But who knows?
-        newPlace.attributes.geometry.x += 5
-        newPlace.attributes.geometry.y += 5
-      }
-
-      newPlace.attributes.services = [].concat(oldPlace.attributes.services);
-      newPlace.attributes.openingHours = [].concat(oldPlace.attributes.openingHours);
-      newPlace.attributes.streetID = oldPlace.attributes.streetID;
-
-      if (oldPlace.attributes.categories.includes('GAS_STATION')) {
-        newPlace.attributes.brand = oldPlace.attributes.brand
-      }
-
-      if (oldPlace.attributes.categories.includes('PARKING_LOT')) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT = {}
-
-        let attributes = oldPlace.attributes.categoryAttributes.PARKING_LOT
-        if ((attributes.lotType != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-        if ((attributes.canExitWhileClosed != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed = oldPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed
-        if ((attributes.costType != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.costType = oldPlace.attributes.categoryAttributes.PARKING_LOT.costType
-        if ((attributes.estimatedNumberOfSpots != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots = oldPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots
-        if ((attributes.hasTBR != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR = oldPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR
-        if ((attributes.lotType != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-        if ((attributes.parkingType != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.parkingType = oldPlace.attributes.categoryAttributes.PARKING_LOT.parkingType
-        if ((attributes.paymentType != null))
-          newPlace.attributes.categoryAttributes.PARKING_LOT.paymentType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.paymentType)
-      }
-
-      W.model.actionManager.add(new WazeActionAddLandmark(newPlace));
-      W.selectionManager.setSelectedModels(newPlace);
+    for (let i = 0; i < venues.length; i++) {
+      copyPlace(venues[i])
     }
+  }
+
+  /**
+   * Create copy for place
+   * @param oldPlace
+   */
+  function copyPlace(oldPlace){
+    let newPlace = new WazeFeatureVectorLandmark;
+    newPlace.attributes.name = oldPlace.attributes.name + ' (copy)';
+    newPlace.attributes.phone = oldPlace.attributes.phone;
+    newPlace.attributes.url = oldPlace.attributes.url;
+    newPlace.attributes.categories = [].concat(oldPlace.attributes.categories);
+    newPlace.attributes.aliases = [].concat(oldPlace.attributes.aliases);
+    newPlace.attributes.description = oldPlace.attributes.description;
+    newPlace.attributes.houseNumber = oldPlace.attributes.houseNumber;
+    newPlace.attributes.lockRank = oldPlace.attributes.lockRank;
+    newPlace.attributes.geometry = oldPlace.attributes.geometry.clone();
+
+    if (oldPlace.attributes.geometry.toString().match(/^POLYGON/)) {
+      for (let i = 0; i < newPlace.attributes.geometry.components[0].components.length - 1; i++) {
+        newPlace.attributes.geometry.components[0].components[i].x += 5
+        newPlace.attributes.geometry.components[0].components[i].y += 5
+      }
+    } else {
+      // Geometry not used for points as is
+      // But you can use select multiple venues, and then click "copy"
+      newPlace.attributes.geometry.x += 5
+      newPlace.attributes.geometry.y += 5
+    }
+
+    newPlace.attributes.services = [].concat(oldPlace.attributes.services);
+    newPlace.attributes.openingHours = [].concat(oldPlace.attributes.openingHours);
+    newPlace.attributes.streetID = oldPlace.attributes.streetID;
+
+    if (oldPlace.attributes.categories.includes('GAS_STATION')) {
+      newPlace.attributes.brand = oldPlace.attributes.brand
+    }
+
+    if (oldPlace.attributes.categories.includes('PARKING_LOT')) {
+      newPlace.attributes.categoryAttributes.PARKING_LOT = {}
+
+      let attributes = oldPlace.attributes.categoryAttributes.PARKING_LOT
+      if ((attributes.lotType != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
+      if ((attributes.canExitWhileClosed != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed = oldPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed
+      if ((attributes.costType != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.costType = oldPlace.attributes.categoryAttributes.PARKING_LOT.costType
+      if ((attributes.estimatedNumberOfSpots != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots = oldPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots
+      if ((attributes.hasTBR != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR = oldPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR
+      if ((attributes.lotType != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
+      if ((attributes.parkingType != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.parkingType = oldPlace.attributes.categoryAttributes.PARKING_LOT.parkingType
+      if ((attributes.paymentType != null))
+        newPlace.attributes.categoryAttributes.PARKING_LOT.paymentType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.paymentType)
+    }
+
+    W.model.actionManager.add(new WazeActionAddLandmark(newPlace));
+    W.selectionManager.setSelectedModels(newPlace);
   }
 
   // Simple console.log wrapper
