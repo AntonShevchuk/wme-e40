@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.4.2
+// @version      0.4.3
 // @description  Setup POI geometry properties in one click
 // @author       Anton Shevchuk
 // @license      MIT License
@@ -82,7 +82,7 @@
       callback: () => orthogonalize()
     },
     B: {
-      title: '<i class="fa fa-magic"></i>',
+      title: '🪄',
       description: I18n.t(NAME).simplify,
       shortcut: 'S+50',
       callback: () => simplify()
@@ -121,7 +121,7 @@
       callback: () => orthogonalizeAll()
     },
     B: {
-      title: '<i class="fa fa-magic"></i>',
+      title: '🪄',
       description: I18n.t(NAME).simplify,
       shortcut: null,
       callback: () => simplifyAll()
@@ -146,7 +146,7 @@
   function getSelectedPlaces () {
     let selected
     selected = APIHelper.getSelectedVenues()
-    selected = selected.filter((el) => !el.isPoint())
+    selected = selected.filter(el => !el.isPoint())
     return selected
   }
 
@@ -158,11 +158,17 @@
 
   // Scale all places in the editor area to X m²
   function scaleAll (x = 650, orMore = true) {
-    scaleArray(APIHelper.getVenues(), x, orMore)
+    scaleArray(APIHelper.getVenues().filter(el => !el.isPoint()), x, orMore)
     return false
   }
 
   function scaleArray (elements, x, orMore = false) {
+    console.group(
+      '%c' + NAME + ': 📏 %c try to scale ' + (elements.length) + ' element(s) to ' + x + 'm²',
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+    let total = 0
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
@@ -177,10 +183,13 @@
 
         let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, newGeometry)
         W.model.actionManager.add(action)
+        total++
       } catch (e) {
-        log('skipped')
+        log('skipped', e)
       }
     }
+    console.log(total + ' element(s) was scaled')
+    console.groupEnd()
   }
 
   // Orthogonalize selected place(s)
@@ -193,11 +202,18 @@
   function orthogonalizeAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    orthogonalizeArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']))
+    orthogonalizeArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
     return false
   }
 
   function orthogonalizeArray (elements) {
+    console.group(
+      '%c' + NAME + ': 🔲 %c try to orthogonalize ' + (elements.length) + ' element(s)',
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+    let total = 0
+    // skip points
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
@@ -210,13 +226,15 @@
 
           let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, selected.geometry)
           W.model.actionManager.add(action)
+          total++
         }
       } catch (e) {
         log('skipped')
         console.log(e)
       }
     }
-    return false
+    console.log(total + ' element(s) was orthogonalized')
+    console.groupEnd()
   }
 
   function orthogonalizeGeometry (geometry, threshold = 12) {
@@ -437,11 +455,17 @@
   function simplifyAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    simplifyArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']))
+    simplifyArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
     return false
   }
 
   function simplifyArray (elements, factor = 8) {
+    console.group(
+      '%c' + NAME + ': 🪄 %c try to simplify ' + (elements.length) + ' element(s)',
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+    let total = 0
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
@@ -452,12 +476,14 @@
 
         if (newGeometry.components[0].components.length < oldGeometry.components[0].components.length) {
           W.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, newGeometry))
+          total++
         }
       } catch (e) {
-        log('skipped')
+        log('skipped', e)
       }
     }
-    return false
+    console.log(total + ' element(s) was simplified')
+    console.groupEnd()
   }
 
   /**
@@ -483,7 +509,7 @@
    * Last of them will be chosen
    */
   function copyPlaces () {
-    let venues = APIHelper.getSelectedVenues()
+    let venues = getSelectedPlaces()
 
     for (let i = 0; i < venues.length; i++) {
       copyPlace(venues[i])
@@ -568,6 +594,12 @@
     WazeActionUpdateFeatureAddress = require('Waze/Action/UpdateFeatureAddress')
     WazeFeatureVectorLandmark = require('Waze/Feature/Vector/Landmark')
     WazeActionAddLandmark = require('Waze/Action/AddLandmark')
+
+    // Workaround for shortcuts title
+    I18n.translations[I18n.currentLocale()].keyboard_shortcuts.groups['e40'] = {
+      description: I18n.t(NAME).title,
+      members: []
+    }
 
     helper = new APIHelperUI(NAME)
 
