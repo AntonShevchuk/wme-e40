@@ -1,40 +1,35 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.4.3
+// @version      0.5.0
 // @description  Setup POI geometry properties in one click
-// @author       Anton Shevchuk
 // @license      MIT License
+// @author       Anton Shevchuk
+// @namespace    https://greasyfork.org/users/227648-anton-shevchuk
+// @supportURL   https://github.com/AntonShevchuk/wme-e40/issues
 // @match        https://www.waze.com/editor*
 // @match        https://www.waze.com/*/editor*
 // @match        https://beta.waze.com/editor*
 // @match        https://beta.waze.com/*/editor*
 // @exclude      https://www.waze.com/user/editor*
 // @exclude      https://beta.waze.com/user/editor*
-// @grant        none
 // @icon         data:image/png;base64,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
-// @require      https://greasyfork.org/scripts/389117-apihelper/code/APIHelper.js?version=1084940
-// @require      https://greasyfork.org/scripts/389577-apihelperui/code/APIHelperUI.js?version=1082967
-// @supportURL   https://github.com/AntonShevchuk/wme-e40/issues
-// @namespace    https://greasyfork.org/users/227648
+// @grant        none
+// @require      https://greasyfork.org/scripts/450160-wme-bootstrap/code/WME-Bootstrap.js?version=1087270
+// @require      https://greasyfork.org/scripts/450221-wme-base/code/WME-Base.js?version=1087271
+// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1087272
 // ==/UserScript==
 
-/* jshint esversion: 6 */
+/* jshint esversion: 8 */
 /* global require */
 /* global $ */
 /* global W */
-/* global OpenLayers */
 /* global I18n */
-/* global APIHelper */
-/* global APIHelperUI */
+/* global OpenLayers */
+/* global WME, WMEBase, WMEUI, WMEUIHelper */
+/* global Container, Settings, SimpleCache, Tools  */
 
-(function ($) {
+(function () {
   'use strict'
-
-  let helper
-  let panel
-  let tab
-
-  let OL = OpenLayers
 
   // Script name, uses as unique index
   const NAME = 'E40'
@@ -48,6 +43,7 @@
       simplify: 'Simplify',
       scale: 'Scale',
       copy: 'Copy',
+      about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
     'uk': {
       title: 'Геометрія',
@@ -56,6 +52,7 @@
       simplify: 'Спростити',
       scale: 'Масштабувати',
       copy: 'Копіювати',
+      about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
     'ru': {
       title: 'Геометрия',
@@ -64,15 +61,17 @@
       simplify: 'Упростить',
       scale: 'Масштабировать',
       copy: 'Копировать',
+      about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     }
   }
 
-  APIHelper.bootstrap()
-  APIHelper.addTranslation(NAME, TRANSLATION)
-  APIHelper.addStyle(
+  const STYLE =
     'button.waze-btn.e40 { margin: 0 4px 4px 0; padding: 2px; width: 42px; } ' +
-    'button.waze-btn.e40:hover { box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), inset 0 0 100px 100px rgba(255, 255, 255, 0.3); } '
-  )
+    'button.waze-btn.e40:hover { box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), inset 0 0 100px 100px rgba(255, 255, 255, 0.3); } ' +
+    'p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }'
+
+  WMEUI.addTranslation(NAME, TRANSLATION)
+  WMEUI.addStyle(STYLE)
 
   const panelButtons = {
     A: {
@@ -82,7 +81,7 @@
       callback: () => orthogonalize()
     },
     B: {
-      title: '🪄',
+      title: '〽️',
       description: I18n.t(NAME).simplify,
       shortcut: 'S+50',
       callback: () => simplify()
@@ -121,7 +120,7 @@
       callback: () => orthogonalizeAll()
     },
     B: {
-      title: '🪄',
+      title: '〽️',
       description: I18n.t(NAME).simplify,
       shortcut: null,
       callback: () => simplifyAll()
@@ -139,13 +138,120 @@
   let WazeFeatureVectorLandmark
   let WazeActionAddLandmark
 
+  class E40 extends WMEBase {
+    constructor (name) {
+      super(name)
+
+      this.helper = new WMEUIHelper(name)
+
+      this.panel = this.helper.createPanel(I18n.t(name).title)
+      this.panel.addButtons(panelButtons)
+
+      if (W.loginManager.user.getRank() > 2) {
+        this.tab = this.helper.createTab(
+          I18n.t(name).title,
+          I18n.t(name).description,
+          {
+            'icon': '<i class="w-icon panel-header-component-icon w-icon-polygon"></i>'
+          }
+        )
+        this.tab.addButtons(tabButtons)
+        this.tab.addText(
+          'info',
+          '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version
+        )
+        this.tab.inject()
+      }
+    }
+
+    /**
+     * Handler for `place.wme` event
+     * @param {jQuery.Event} event
+     * @param {HTMLElement} element
+     * @param {W.model} model
+     * @return {Null}
+     */
+    onPlace (event, element, model) {
+      this.createPanel(event, element)
+    }
+
+    /**
+     * Handler for `venues.wme` event
+     * @param {jQuery.Event} event
+     * @param {HTMLElement} element
+     * @param {Array} models
+     * @return {Null}
+     */
+    onVenues (event, element, models) {
+      models = models.filter(el => !el.isPoint())
+      if (models.length > 0) {
+        this.createPanel(event, element)
+      }
+    }
+
+    /**
+     * Create panel with buttons
+     * @param event
+     * @param element
+     */
+    createPanel (event, element) {
+      if (element.querySelector('div.form-group.e40')) {
+        return
+      }
+
+      element.prepend(this.panel.html())
+      this.updateLabel()
+    }
+
+    /**
+     * Updated label
+     */
+    updateLabel () {
+      let places = getSelectedPlaces()
+      if (places.length === 0) {
+        return
+      }
+      let info = []
+      for (let i = 0; i < places.length; i++) {
+        let selected = places[i]
+        info.push(Math.round(selected.geometry.getGeodesicArea(W.map.getProjectionObject())) + 'm²')
+      }
+      let label = I18n.t(NAME).title
+      if (info.length) {
+        label += ' (' + info.join(', ') + ')'
+      }
+
+      document.querySelector('div.form-group.e40 label').innerText = label
+    }
+  }
+
+  $(document).on('bootstrap.wme', () => {
+    // Require Waze components
+    WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry')
+    WazeActionUpdateFeatureAddress = require('Waze/Action/UpdateFeatureAddress')
+    WazeFeatureVectorLandmark = require('Waze/Feature/Vector/Landmark')
+    WazeActionAddLandmark = require('Waze/Action/AddLandmark')
+
+    // Workaround for shortcuts title
+    I18n.translations[I18n.currentLocale()].keyboard_shortcuts.groups.e40 = {
+      description: I18n.t(NAME).title,
+      members: []
+    }
+
+    let E40Instance = new E40(NAME)
+
+    W.model.actionManager.events.register('afterundoaction', null, E40Instance.updateLabel)
+    W.model.actionManager.events.register('afterclearactions', null, E40Instance.updateLabel)
+    W.model.actionManager.events.register('afteraction', null, E40Instance.updateLabel)
+  })
+
   /**
    * Get selected Area POI
    * @return {Array}
    */
   function getSelectedPlaces () {
     let selected
-    selected = APIHelper.getSelectedVenues()
+    selected = WME.getSelectedVenues()
     selected = selected.filter(el => !el.isPoint())
     return selected
   }
@@ -158,7 +264,7 @@
 
   // Scale all places in the editor area to X m²
   function scaleAll (x = 650, orMore = true) {
-    scaleArray(APIHelper.getVenues().filter(el => !el.isPoint()), x, orMore)
+    scaleArray(WME.getVenues().filter(el => !el.isPoint()), x, orMore)
     return false
   }
 
@@ -185,7 +291,7 @@
         W.model.actionManager.add(action)
         total++
       } catch (e) {
-        log('skipped', e)
+        console.log('skipped', e)
       }
     }
     console.log(total + ' element(s) was scaled')
@@ -202,7 +308,7 @@
   function orthogonalizeAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    orthogonalizeArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
+    orthogonalizeArray(WME.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
     return false
   }
 
@@ -229,7 +335,7 @@
           total++
         }
       } catch (e) {
-        log('skipped')
+        console.log('skipped')
         console.log(e)
       }
     }
@@ -263,8 +369,9 @@
           points[corner.i].y = tmp.y
 
           score = corner.dotp
-          if (score < epsilon)
+          if (score < epsilon) {
             break
+          }
         }
 
         let n = points[corner.i]
@@ -273,8 +380,9 @@
 
         let id = nodes[corner.i].id
         for (i = 0; i < nodes.length; i++) {
-          if (nodes[i].id != id)
+          if (nodes[i].id != id) {
             continue
+          }
 
           nodes[i].x = pp.x
           nodes[i].y = pp.y
@@ -297,13 +405,14 @@
             points[j].x = tmp.x
             points[j].y = tmp.y
           }
-          var newScore = squareness(points)
+          let newScore = squareness(points)
           if (newScore < score) {
             best = [].concat(points)
             score = newScore
           }
-          if (score < epsilon)
+          if (score < epsilon) {
             break
+          }
         }
 
         points = best
@@ -317,8 +426,9 @@
 
             let id = nodes[i].id
             for (j = 0; j < nodes.length; j++) {
-              if (nodes[j].id != id)
+              if (nodes[j].id != id) {
                 continue
+              }
 
               nodes[j].x = pp.x
               nodes[j].y = pp.y
@@ -332,8 +442,9 @@
           if (dotp < -1 + epsilon) {
             let id = nodes[i].id
             for (j = 0; j < nodes.length; j++) {
-              if (nodes[j].id != id)
+              if (nodes[j].id != id) {
                 continue
+              }
 
               nodes[j] = false
             }
@@ -358,8 +469,9 @@
 
         // nasty hack to deal with almost-straight segments (angle is closer to 180 than to 90/270).
         if (array.length > 3) {
-          if (dotp < -0.707106781186547)
+          if (dotp < -0.707106781186547) {
             dotp += 1.0
+          }
         } else if (dotp && Math.abs(dotp) < corner.dotp) {
           corner.i = i
           corner.dotp = Math.abs(dotp)
@@ -427,8 +539,9 @@
     }
 
     function filterDotProduct (dotp) {
-      if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold)
+      if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold) {
         return dotp
+      }
 
       return 0
     }
@@ -455,13 +568,13 @@
   function simplifyAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    simplifyArray(APIHelper.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
+    simplifyArray(WME.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
     return false
   }
 
   function simplifyArray (elements, factor = 8) {
     console.group(
-      '%c' + NAME + ': 🪄 %c try to simplify ' + (elements.length) + ' element(s)',
+      '%c' + NAME + ': 〽️ %c try to simplify ' + (elements.length) + ' element(s)',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
     )
@@ -470,16 +583,16 @@
       let selected = elements[i]
       try {
         let oldGeometry = selected.geometry.clone()
-        let ls = new OL.Geometry.LineString(oldGeometry.components[0].components)
+        let ls = new OpenLayers.Geometry.LineString(oldGeometry.components[0].components)
         ls = ls.simplify(factor)
-        let newGeometry = new OL.Geometry.Polygon(new OL.Geometry.LinearRing(ls.components))
+        let newGeometry = new OpenLayers.Geometry.Polygon(new OpenLayers.Geometry.LinearRing(ls.components))
 
         if (newGeometry.components[0].components.length < oldGeometry.components[0].components.length) {
           W.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, newGeometry))
           total++
         }
       } catch (e) {
-        log('skipped', e)
+        console.log('skipped', e)
       }
     }
     console.log(total + ' element(s) was simplified')
@@ -556,105 +669,34 @@
       newPlace.attributes.categoryAttributes.PARKING_LOT = {}
 
       let attributes = oldPlace.attributes.categoryAttributes.PARKING_LOT
-      if ((attributes.lotType != null))
+      if ((attributes.lotType != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-      if ((attributes.canExitWhileClosed != null))
+      }
+      if ((attributes.canExitWhileClosed != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed = oldPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed
-      if ((attributes.costType != null))
+      }
+      if ((attributes.costType != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.costType = oldPlace.attributes.categoryAttributes.PARKING_LOT.costType
-      if ((attributes.estimatedNumberOfSpots != null))
+      }
+      if ((attributes.estimatedNumberOfSpots != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots = oldPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots
-      if ((attributes.hasTBR != null))
+      }
+      if ((attributes.hasTBR != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR = oldPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR
-      if ((attributes.lotType != null))
+      }
+      if ((attributes.lotType != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-      if ((attributes.parkingType != null))
+      }
+      if ((attributes.parkingType != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.parkingType = oldPlace.attributes.categoryAttributes.PARKING_LOT.parkingType
-      if ((attributes.paymentType != null))
+      }
+      if ((attributes.paymentType != null)) {
         newPlace.attributes.categoryAttributes.PARKING_LOT.paymentType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.paymentType)
+      }
     }
 
     W.model.actionManager.add(new WazeActionAddLandmark(newPlace))
     W.selectionManager.setSelectedModels(newPlace)
   }
 
-  // Simple console.log wrapper
-  function log (message) {
-    console.log(NAME + ': ' + message)
-  }
-
-  $(document)
-    .on('init.apihelper', ready)
-    .on('landmark.apihelper', createPanel)
-    .on('landmark-collection.apihelper', createPanel)
-
-  function ready () {
-    // Require Waze components
-    WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry')
-    WazeActionUpdateFeatureAddress = require('Waze/Action/UpdateFeatureAddress')
-    WazeFeatureVectorLandmark = require('Waze/Feature/Vector/Landmark')
-    WazeActionAddLandmark = require('Waze/Action/AddLandmark')
-
-    // Workaround for shortcuts title
-    I18n.translations[I18n.currentLocale()].keyboard_shortcuts.groups['e40'] = {
-      description: I18n.t(NAME).title,
-      members: []
-    }
-
-    helper = new APIHelperUI(NAME)
-
-    panel = helper.createPanel(I18n.t(NAME).title)
-    panel.addButtons(panelButtons)
-
-    if (W.loginManager.user.getRank() > 2) {
-      tab = helper.createTab(
-        I18n.t(NAME).title,
-        I18n.t(NAME).description,
-        '<i class="w-icon panel-header-component-icon w-icon-polygon"></i>'
-      )
-      tab.addButtons(tabButtons)
-      tab.inject()
-    }
-
-    W.model.actionManager.events.register('afterundoaction', null, updateLabel)
-    W.model.actionManager.events.register('afterclearactions', null, updateLabel)
-    W.model.actionManager.events.register('afteraction', null, updateLabel)
-  }
-
-  function createPanel (event, element) {
-    if (element.querySelector('div.form-group.e40')) {
-      return
-    }
-    let places = getSelectedPlaces()
-    if (places.length === 0) {
-      return
-    }
-
-    element.prepend(panel.html())
-    updateLabel()
-  }
-
-  function updateLabel () {
-    let places = getSelectedPlaces()
-    if (places.length === 0) {
-      return
-    }
-    let info = []
-    for (let i = 0; i < places.length; i++) {
-      let selected = places[i]
-      info.push(Math.round(selected.geometry.getGeodesicArea(W.map.getProjectionObject())) + 'm²')
-    }
-    let label = I18n.t(NAME).title
-    if (info.length) {
-      label += ' (' + info.join(', ') + ')'
-    }
-    panel.html().querySelector('label').innerText = label
-  }
-
-  // external API
-  window.E40 = {
-    scale: function (x) {
-      scaleSelected(x)
-    }
-  }
-})(window.jQuery)
+})()
