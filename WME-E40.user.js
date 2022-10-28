@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.5.4
+// @version      0.5.5
 // @description  Setup POI geometry properties in one click
 // @license      MIT License
 // @author       Anton Shevchuk
@@ -14,7 +14,7 @@
 // @require      https://greasyfork.org/scripts/450160-wme-bootstrap/code/WME-Bootstrap.js?version=1090054
 // @require      https://greasyfork.org/scripts/452563-wme/code/WME.js?version=1101598
 // @require      https://greasyfork.org/scripts/450221-wme-base/code/WME-Base.js?version=1101617
-// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1101616
+// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1110180
 // ==/UserScript==
 
 /* jshint esversion: 8 */
