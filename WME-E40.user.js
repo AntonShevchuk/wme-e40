@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @version      0.5.5
+// @version      0.5.6
 // @description  Setup POI geometry properties in one click
 // @license      MIT License
 // @author       Anton Shevchuk
