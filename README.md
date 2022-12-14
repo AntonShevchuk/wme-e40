@@ -4,6 +4,8 @@ Create additional panel with buttons for change POI geometry in one click.
 
 ![](screenshot.png)
 
+![](example.gif)
+
 ## Shortcuts
 <table style="width:100%">
 <tr>
