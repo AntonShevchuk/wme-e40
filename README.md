@@ -4,6 +4,8 @@ Create additional panel with buttons for change POI geometry in one click.
 
 ![](screenshot.png)
 
+![](settings.png)
+
 ![](example.gif)
 
 ## Shortcuts
