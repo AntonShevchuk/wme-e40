@@ -13,8 +13,8 @@
 // @grant        none
 // @require      https://greasyfork.org/scripts/450160-wme-bootstrap/code/WME-Bootstrap.js?version=1135567
 // @require      https://greasyfork.org/scripts/452563-wme/code/WME.js?version=1101598
-// @require      https://greasyfork.org/scripts/450221-wme-base/code/WME-Base.js?version=1129908
-// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1137009
+// @require      https://greasyfork.org/scripts/450221-wme-base/code/WME-Base.js?version=1137043
+// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1137289
 // ==/UserScript==
 
 /* jshint esversion: 8 */
@@ -32,11 +32,15 @@
   // Script name, uses as unique index
   const NAME = 'E40'
 
+  // User level required for apply geometry for all entities in the view area
+  const REQUIRED_LEVEL = 2
+
   // Translations
   const TRANSLATION = {
     'en': {
       title: 'POI Geometry',
       description: 'Change geometry in the current view area',
+      warning: '⚠️ This option is available for editors with a rank higher than ' + REQUIRED_LEVEL,
       orthogonalize: 'Orthogonalize',
       simplify: 'Simplify',
       scale: 'Scale',
@@ -46,6 +50,7 @@
     'uk': {
       title: 'Геометрія POI',
       description: 'Змінити геометрію об’єктів у поточному розташуванні',
+      warning: '⚠️ Ця опція доступна лише для редакторів з рангом вищім ніж ' + REQUIRED_LEVEL,
       orthogonalize: 'Вирівняти',
       simplify: 'Спростити',
       scale: 'Масштабувати',
@@ -55,6 +60,7 @@
     'ru': {
       title: 'Геометрия POI',
       description: 'Изменить геометрию объектов в текущем расположении',
+      warning: '⚠️ Эта опция доступна для редакторов с рангов выше ' + REQUIRED_LEVEL,
       orthogonalize: 'Выровнять',
       simplify: 'Упростить',
       scale: 'Масштабировать',
@@ -66,7 +72,8 @@
   const STYLE =
     'button.waze-btn.e40 { margin: 0 4px 4px 0; padding: 2px; width: 42px; } ' +
     'button.waze-btn.e40:hover { box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), inset 0 0 100px 100px rgba(255, 255, 255, 0.3); } ' +
-    'p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }'
+    'p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
+    'p.e40-warning { color: #f77 }'
 
   WMEUI.addTranslation(NAME, TRANSLATION)
   WMEUI.addStyle(STYLE)
@@ -148,21 +155,23 @@
       this.panel = this.helper.createPanel(I18n.t(name).title)
       this.panel.addButtons(panelButtons)
 
-      if (W.loginManager.user.getRank() > 2) {
-        this.tab = this.helper.createTab(
-          I18n.t(name).title,
-          {
-            'icon': 'polygon'
-          }
-        )
-        this.tab.addText('description', I18n.t(name).description)
-        this.tab.addButtons(tabButtons)
-        this.tab.addText(
-          'info',
-          '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version
-        )
-        this.tab.inject()
+      let tab = this.helper.createTab(
+        I18n.t(name).title,
+        {
+          'icon': 'polygon'
+        }
+      )
+      tab.addText('description', I18n.t(name).description)
+      if (W.loginManager.user.getRank() > REQUIRED_LEVEL) {
+        tab.addButtons(tabButtons)
+      } else {
+        tab.addText('warning', I18n.t(name).warning)
       }
+      tab.addText(
+        'info',
+        '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version
+      )
+      tab.inject()
     }
 
     /**
@@ -264,7 +273,7 @@
   }
 
   function scaleArray (elements, x, orMore = false) {
-    console.group(
+    console.groupCollapsed(
       '%c' + NAME + ': 📏 %c try to scale ' + (elements.length) + ' element(s) to ' + x + 'm²',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
@@ -308,7 +317,7 @@
   }
 
   function orthogonalizeArray (elements) {
-    console.group(
+    console.groupCollapsed(
       '%c' + NAME + ': 🔲 %c try to orthogonalize ' + (elements.length) + ' element(s)',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
@@ -330,8 +339,7 @@
           total++
         }
       } catch (e) {
-        console.log('skipped')
-        console.log(e)
+        console.log('skipped', e)
       }
     }
     console.log(total + ' element(s) was orthogonalized')
@@ -559,7 +567,7 @@
   }
 
   function simplifyArray (elements, factor = 8) {
-    console.group(
+    console.groupCollapsed(
       '%c' + NAME + ': 〽️ %c try to simplify ' + (elements.length) + ' element(s)',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
@@ -620,6 +628,12 @@
    * @param oldPlace
    */
   function copyPlace (oldPlace) {
+    console.log(
+      '%c' + NAME + ': %c created a copy of the POI ' + oldPlace.attributes.name,
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+
     let newPlace = new WazeFeatureVectorLandmark
     newPlace.attributes.name = oldPlace.attributes.name + ' (copy)'
     newPlace.attributes.phone = oldPlace.attributes.phone
