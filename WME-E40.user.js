@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         WME E40 Geometry
-// @name:uk      WME 🇺🇦E40 Геометрія
+// @name:uk      WME 🇺🇦 E40 Геометрія
 // @version      0.6.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипти ви можете легко змінювати площу та вирівнювати POI
