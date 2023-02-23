@@ -3,7 +3,7 @@
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @version      0.6.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
-// @description:uk За допомогою цього скрипти ви можете легко змінювати площу та вирівнювати POI
+// @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
 // @author       Anton Shevchuk
 // @namespace    https://greasyfork.org/users/227648-anton-shevchuk
