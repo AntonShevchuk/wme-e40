@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.6.2
+// @version      0.6.3
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
@@ -180,9 +180,11 @@
      * @param {jQuery.Event} event
      * @param {HTMLElement} element
      * @param {W.model} model
-     * @return {Null}
      */
     onPlace (event, element, model) {
+      if (!model.isGeometryEditable()) {
+        return
+      }
       this.createPanel(event, element)
     }
 
@@ -194,7 +196,7 @@
      * @return {Null}
      */
     onVenues (event, element, models) {
-      models = models.filter(el => !el.isPoint())
+      models = models.filter(el => !el.isPoint() && el.isGeometryEditable())
       if (models.length > 0) {
         this.createPanel(event, element)
       }
