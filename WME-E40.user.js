@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.6.6
+// @version      0.6.7
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
@@ -25,7 +25,7 @@
 /* global W */
 /* global I18n */
 /* global OpenLayers */
-/* global WME, WMEBase, WMEUI, WMEUIHelper */
+/* global WME, WMEBase, WMEUI, WMEUIHelper, WMEUIShortcut */
 /* global Container, Settings, SimpleCache, Tools  */
 
 (function () {
@@ -234,7 +234,8 @@
         label += ' (' + info.join(', ') + ')'
       }
 
-      document.querySelector('div.form-group.e40 label').innerText = label
+      let elm = document.querySelector('div.form-group.e40 label')
+      if (elm) elm.innerText = label
     }
   }
 
