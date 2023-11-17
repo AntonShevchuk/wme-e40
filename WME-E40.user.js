@@ -16,7 +16,7 @@
 // @require      https://greasyfork.org/scripts/450160-wme-bootstrap/code/WME-Bootstrap.js?version=1218867
 // @require      https://greasyfork.org/scripts/452563-wme/code/WME.js?version=1218878
 // @require      https://greasyfork.org/scripts/450221-wme-base/code/WME-Base.js?version=1137043
-// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1137289
+// @require      https://greasyfork.org/scripts/450320-wme-ui/code/WME-UI.js?version=1281847
 // ==/UserScript==
 
 /* jshint esversion: 8 */
