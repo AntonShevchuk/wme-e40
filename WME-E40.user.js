@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.6.7
+// @version      0.7.0
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
@@ -227,7 +227,7 @@
       let info = []
       for (let i = 0; i < places.length; i++) {
         let selected = places[i]
-        info.push(Math.round(selected.geometry.getGeodesicArea(W.map.getProjectionObject())) + 'm²')
+        info.push(Math.round(selected.getOLGeometry().getGeodesicArea(W.map.getProjectionObject())) + 'm²')
       }
       let label = I18n.t(NAME).title
       if (info.length) {
@@ -286,16 +286,21 @@
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
-        let oldGeometry = selected.geometry.clone()
-        let newGeometry = selected.geometry.clone()
+        let oldOLGeometry = selected.getOLGeometry().clone()
+        let newOLGeometry = selected.getOLGeometry().clone()
 
-        let scale = Math.sqrt((x + 5) / oldGeometry.getGeodesicArea(W.map.getProjectionObject()))
+        let scale = Math.sqrt((x + 5) / oldOLGeometry.getGeodesicArea(W.map.getProjectionObject()))
         if (scale < 1 && orMore) {
           continue
         }
-        newGeometry.resize(scale, newGeometry.getCentroid())
+        newOLGeometry.resize(scale, newOLGeometry.getCentroid())
 
-        let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, newGeometry)
+        let action = new WazeActionUpdateFeatureGeometry(
+          selected,
+          W.model.venues,
+          W.userscripts.toGeoJSONGeometry(oldOLGeometry),
+          W.userscripts.toGeoJSONGeometry(newOLGeometry)
+        )
         W.model.actionManager.add(action)
         total++
       } catch (e) {
@@ -331,14 +336,21 @@
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
-        let oldGeometry = selected.geometry.clone()
-        let newGeometry = orthogonalizeGeometry(selected.geometry.clone().components[0].components)
 
-        if (!compare(oldGeometry.components[0].components, newGeometry)) {
-          selected.geometry.components[0].components = [].concat(newGeometry)
-          selected.geometry.components[0].clearBounds()
+        let oldGeometry = { ...selected.getGeometry() }
+        let currentOLGeometry = selected.getOLGeometry()
 
-          let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, selected.geometry)
+        let oldNodes = currentOLGeometry.clone().components[0].components
+        let newNodes = orthogonalizeGeometry(selected.getOLGeometry().clone().components[0].components)
+
+
+        if (!compare(oldNodes, newNodes)) {
+          currentOLGeometry.components[0].components = [].concat(newNodes)
+          currentOLGeometry.components[0].clearBounds()
+
+          selected.setOLGeometry(currentOLGeometry)
+
+          let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, selected.getGeometry())
           W.model.actionManager.add(action)
           total++
         }
@@ -350,14 +362,20 @@
     console.groupEnd()
   }
 
-  function orthogonalizeGeometry (geometry, threshold = 12) {
+  /**
+   * Clone OL Geometry and orthogonalize it
+   * @param nodes
+   * @param threshold
+   * @return {*}
+   */
+  function orthogonalizeGeometry (nodes, threshold = 12) {
+
     let nomthreshold = threshold, // degrees within right or straight to alter
       lowerThreshold = Math.cos((90 - nomthreshold) * Math.PI / 180),
       upperThreshold = Math.cos(nomthreshold * Math.PI / 180)
 
-    function Orthogonalize () {
-      let nodes = geometry,
-        points = nodes.slice(0, -1).map(function (n) {
+    function Orthogonalize (nodes) {
+      let points = nodes.slice(0, -1).map(function (n) {
           let p = n.clone().transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'))
           p.y = lat2latp(p.y)
           return p
@@ -580,13 +598,20 @@
     for (let i = 0; i < elements.length; i++) {
       let selected = elements[i]
       try {
-        let oldGeometry = selected.geometry.clone()
-        let ls = new OpenLayers.Geometry.LineString(oldGeometry.components[0].components)
+        let oldOLGeometry = selected.getOLGeometry().clone()
+        let ls = new OpenLayers.Geometry.LineString(oldOLGeometry.components[0].components)
         ls = ls.simplify(factor)
-        let newGeometry = new OpenLayers.Geometry.Polygon(new OpenLayers.Geometry.LinearRing(ls.components))
+        let newOLGeometry = new OpenLayers.Geometry.Polygon(new OpenLayers.Geometry.LinearRing(ls.components))
 
-        if (newGeometry.components[0].components.length < oldGeometry.components[0].components.length) {
-          W.model.actionManager.add(new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, newGeometry))
+        if (newOLGeometry.components[0].components.length < oldOLGeometry.components[0].components.length) {
+          W.model.actionManager.add(
+            new WazeActionUpdateFeatureGeometry(
+              selected,
+              W.model.venues,
+              W.userscripts.toGeoJSONGeometry(oldOLGeometry),
+              W.userscripts.toGeoJSONGeometry(newOLGeometry)
+            )
+          )
           total++
         }
       } catch (e) {
@@ -638,68 +663,31 @@
       'color: dimgray; font-weight: normal'
     )
 
-    let newPlace = new WazeFeatureVectorLandmark
-    newPlace.attributes.name = oldPlace.attributes.name + ' (copy)'
-    newPlace.attributes.phone = oldPlace.attributes.phone
-    newPlace.attributes.url = oldPlace.attributes.url
-    newPlace.attributes.categories = [].concat(oldPlace.attributes.categories)
-    newPlace.attributes.aliases = [].concat(oldPlace.attributes.aliases)
-    newPlace.attributes.description = oldPlace.attributes.description
-    newPlace.attributes.houseNumber = oldPlace.attributes.houseNumber
-    newPlace.attributes.lockRank = oldPlace.attributes.lockRank
-    newPlace.attributes.geometry = oldPlace.attributes.geometry.clone()
+    // copy all attributes of the old place
+    // maybe we should except something in the feature
+    let newPlace = new WazeFeatureVectorLandmark({ ...oldPlace.attributes})
 
-    if (oldPlace.attributes.geometry.toString().match(/^POLYGON/)) {
-      for (let i = 0; i < newPlace.attributes.geometry.components[0].components.length - 1; i++) {
-        newPlace.attributes.geometry.components[0].components[i].x += 5
-        newPlace.attributes.geometry.components[0].components[i].y += 5
-      }
-    } else {
-      // Geometry not used for points as is
-      // But you can use select multiple venues, and then click "copy"
-      newPlace.attributes.geometry.x += 5
-      newPlace.attributes.geometry.y += 5
+    newPlace.setAttribute('name', oldPlace.getAttribute('name') + ' (copy)')
+
+    // little move for new POI, uses geoJSON
+    for (let i = 0; i < newPlace.getGeometry().coordinates[0].length; i++) {
+      newPlace.getGeometry().coordinates[0][i][0] += 0.0001
+      newPlace.getGeometry().coordinates[0][i][1] += 0.00005
     }
 
-    newPlace.attributes.services = [].concat(oldPlace.attributes.services)
-    newPlace.attributes.openingHours = [].concat(oldPlace.attributes.openingHours)
-    newPlace.attributes.streetID = oldPlace.attributes.streetID
-
-    if (oldPlace.attributes.categories.includes('GAS_STATION')) {
-      newPlace.attributes.brand = oldPlace.attributes.brand
-    }
-
-    if (oldPlace.attributes.categories.includes('PARKING_LOT')) {
-      newPlace.attributes.categoryAttributes.PARKING_LOT = {}
-
-      let attributes = oldPlace.attributes.categoryAttributes.PARKING_LOT
-      if ((attributes.lotType != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-      }
-      if ((attributes.canExitWhileClosed != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed = oldPlace.attributes.categoryAttributes.PARKING_LOT.canExitWhileClosed
-      }
-      if ((attributes.costType != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.costType = oldPlace.attributes.categoryAttributes.PARKING_LOT.costType
-      }
-      if ((attributes.estimatedNumberOfSpots != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots = oldPlace.attributes.categoryAttributes.PARKING_LOT.estimatedNumberOfSpots
-      }
-      if ((attributes.hasTBR != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR = oldPlace.attributes.categoryAttributes.PARKING_LOT.hasTBR
-      }
-      if ((attributes.lotType != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.lotType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.lotType)
-      }
-      if ((attributes.parkingType != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.parkingType = oldPlace.attributes.categoryAttributes.PARKING_LOT.parkingType
-      }
-      if ((attributes.paymentType != null)) {
-        newPlace.attributes.categoryAttributes.PARKING_LOT.paymentType = [].concat(oldPlace.attributes.categoryAttributes.PARKING_LOT.paymentType)
-      }
-    }
-
+    // add new POI
     W.model.actionManager.add(new WazeActionAddLandmark(newPlace))
+
+    // update address of new POI
+    // set the same Country/State/Street and skip the house number
+    let address = {
+      countryID: oldPlace.getAddress().getCountry().getID(),
+      stateID: oldPlace.getAddress().getState().getID(),
+      cityName: oldPlace.getAddress().getCityName(),
+      streetName: oldPlace.getAddress().getStreetName()
+    }
+    W.model.actionManager.add(new WazeActionUpdateFeatureAddress(newPlace, address))
+
     W.selectionManager.setSelectedModels(newPlace)
   }
 
