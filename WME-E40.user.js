@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.7.0
+// @version      0.7.1
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
@@ -571,7 +571,7 @@
       return 0
     }
 
-    return Orthogonalize()
+    return Orthogonalize(nodes)
   }
 
   // Simplify selected place(s)
