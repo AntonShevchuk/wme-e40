@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.7.1
+// @version      0.7.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @license      MIT License
@@ -669,11 +669,15 @@
 
     newPlace.setAttribute('name', oldPlace.getAttribute('name') + ' (copy)')
 
+    let geometry = { ... oldPlace.getGeometry()}
+
     // little move for new POI, uses geoJSON
-    for (let i = 0; i < newPlace.getGeometry().coordinates[0].length; i++) {
-      newPlace.getGeometry().coordinates[0][i][0] += 0.0001
-      newPlace.getGeometry().coordinates[0][i][1] += 0.00005
+    for (let i = 0; i < geometry.coordinates[0].length; i++) {
+      geometry.coordinates[0][i][0] += 0.0001
+      geometry.coordinates[0][i][1] += 0.00005
     }
+
+    newPlace.setGeometry(geometry)
 
     // add new POI
     W.model.actionManager.add(new WazeActionAddLandmark(newPlace))
