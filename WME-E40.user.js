@@ -1,9 +1,11 @@
 // ==UserScript==
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
-// @version      0.7.5
+// @name:ru      WME 🇺🇦 E40 Geometry
+// @version      0.8.0
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
+// @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
 // @license      MIT License
 // @author       Anton Shevchuk
 // @namespace    https://greasyfork.org/users/227648-anton-shevchuk
@@ -14,20 +16,23 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4wgMCCcJi6hsjAAAB1lJREFUeNrtmn9QVNcVxz/v7Q8WcPmlAgs0wIgzVTYaLdHRjlGiNeZHZdJ0zGC1tkpsK2nStBkyWwnB2mLUNNHWSdKCyUyGODaSNGCM4xRDpnb8VU39AdgOmARlZZVxRX4v7L7XP3ZZ9smPfZCQkGW/Mzuz977z3r3n3HO+95z3LgQRRBBBBBFEEEEEEcQEx+YJpGth/1+BQp+OF4gDXga+LyAYA0lnGbkNOAj8mi1c7zOEFtkjYeHt9Nj01UVLi0iLSSNEExJQi+5wOYz19vrVlkrL6lpL7dtsY41Xdwo4lFOeI08UbKzYKFPAIXcI5LPEbDJXXdx0EYDjV4+TU5FDQ0sDAkKguD8p0SkUryxmYdJCAMyvmqlpqskUyKfMmmd9LMGYwOG6wzz01kMgQoDo7msFkODDdR/yYNqDWNusJO1Ielc0RZrujwuPA2B9+XrQBKDyeHTSwIbyDQDEh8cTHxmfKeq1+ug+hW3NtoDfAZuam7wGCdGGxGhVx3n3KEcUQdDTT7jDQfL8+qD1I+8CnB73Ft0rjEZFKHidQvA7BAAGnRF7YSuho9D/akMJd/3lCdD7l52VtopNM+6jR5IIk5vJObgVdIPLhupi2JT5O/IycokNh5aW8+w8uZ1dp9+hU3Kpnp9WHX/ItPdAqH7kBuhwdqviFI2oY39WMTMiIzw9l8l5fxADyJBkeoRz699jsr7/YlTUbP6wYh+bFxUxb880aroktQ46DuCCxffs9FEekAdXwGCcQcPPDyqUV3hGeArHfnYKncrQHnMDqOEYMeJujq58WtVWVrhs17CTFoDoqAzy081KPvkiITBwItfI3PtDNPowv6KdnY3DjyJBfuZWlZ5iYN3s5Yqu98+8yO7aI2xctJPs1Axvf8EPDrOjOomOMTEAnXxcfwIMI9iDh0BIxFyez8hStfozZ+UR7/Os85dLefTvFtDBxw3LWf5bO5P7dgFNIgtMCVTaro1nDtDzUc4HapmYteY1iq6y6n39JNlzi81njiiu32uaM45JUIbUxJXMjzJ5UwCHc5hkQzSwKnWqouti02mFJmU15Yrr34nzzwOjN4Ck8jfk/QYO/eSAN29paHiHanvj0FGkCydCUDJ/fctNRZjdtJ3ENwO4K8LkNwMbJQdE8avFuYja4d8ZyLKLkn//iTbXwFn8ePEOZnj1aWbum9kczf10yGeF6gxoNb7TdXC9447Mz3GDLmCSpxkXmeReBM2XbQBhCq88vEeV6Lvn9tDmuiMzkyfx+0VPeptvHttKi6Adliy1ogZRIWCno/cO5YQunD7NyJApXy8HOF2OgS4owZbHj/OtkD5lWnm+6s/+92tBiyj4TteJNMCx7HT7WCBSP8lvCHzlJBgbbSbv22Zv+5f7MrE6VWRsgoAoCCPkWf8l2Cg5wMFZ6wUEcfjSyyX10iP7TKIHtj5agUF0K9LWeoHi+nOqlkGSZSTZn0IaRB8buWRpjAwgXyVj1zx1iZCPjebc/RQbU1K97ScP3I/DJXliXx7orj5tp+xCUggM5g0R6H3Ga+/t9FuIaUfty2pq7zuU2b3sOW/zhv0U3cZlrJnt2QoELTGGcJ8bjGTPfQyNLoyzVyr5zNGLJLnoz3yiCdeDQzFGhKLqvu1oHqsQGGX8h8b0/4+Zz99W7R/aXkI8+x4vAyDvvRW8dOkMLkWdH058GNh9LWCYonhn0dza5De8vmISlFVL+npur+RC7u3ALvUoZJKNRsWjExPuU9xXd+vKeDPAF4DUTeX1TkXX0ukPKN4pZM9eq7h+1lY9VhwgQ+8I7vbInWioojF0iOxREJiXtBCjzuCtOCvrjyFodFztsIMAJRfe4hepFu8tWeYnePZYmXsZQxMpuEdZ/Pzn+vkx4gAhja7tXapEDVoDC14SONkOPz3w8DDP1HE2t465U5I9NrbyveIVeINagE9Ob6E5y0JfSZSWuBzrM5+w+9x+1s23oPiY6bhIldXmV8NReoCAQWtQLS2OOOqH6NI6KL1wlGdmLfV2JUyew/alA8vepw5kI4tf1tzGCwR49kgu7X5e+jbe+BevffpfVdp9swwASO3/I3mXmXbX4Fleh/0E5r8uwqny1biqEHC5etj+zwLCNCOfsF4TypUeVaPw+qmXiQ+LdJe/sn3w2Qlgb63BuG0quffm8kDKd4kNj+Zmaz3/+Owwe86U4pQF1VuukPxKsnz56ctoBA3CcwKj+vrxtbqE5yeq9OdukF+Ucckupu2ehtjj7LnVZyxTrIlvHESPH6sM5oSpCd6d3OF02MWm1qaPbB3uj6JvZL3h/t4mE3iQ3cnS3qy9ANjabdhu26oE8lmSbkqvqt5U7U5WGk+QU5HD57c+D7gDEiUrS1iQtACA9FfTqb1Wu8QtUUDFhvINE+2IzEE3p74AbAEslM5MnPmjomVFTI+ZHoiHpKi7WYflqIVL1kulbGMthYMfk/sj8IiAEBlYFCDfBj4AfuN7TK4fE+mg5ETSNYgggggiiCCCCCKIIAbH/wEkSypmWfyFAwAAAABJRU5ErkJggg==
 // @grant        none
 // @require      https://update.greasyfork.org/scripts/389765/1090053/CommonUtils.js
-// @require      https://update.greasyfork.org/scripts/450160/1619452/WME-Bootstrap.js
-// @require      https://update.greasyfork.org/scripts/452563/1218878/WME.js
-// @require      https://update.greasyfork.org/scripts/450221/1137043/WME-Base.js
-// @require      https://update.greasyfork.org/scripts/450320/1555446/WME-UI.js
+// @require      https://update.greasyfork.org/scripts/450160/1681948/WME-Bootstrap.js
+// @require      https://update.greasyfork.org/scripts/450221/1681856/WME-Base.js
+// @require      https://update.greasyfork.org/scripts/450320/1688694/WME-UI.js
+//
+// @require      https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js
 // ==/UserScript==
 
 /* jshint esversion: 8 */
 /* global require */
 /* global $, jQuery */
-/* global W */
 /* global I18n */
 /* global OpenLayers */
-/* global WME, WMEBase, WMEUI, WMEUIHelper, WMEUIShortcut */
-/* global Container, Settings, SimpleCache, Tools  */
+/* global WMEBase, WMEUI, WMEUIHelper */
+/* global Container, Settings, SimpleCache, Tools */
+
+// import * as turf from "@turf/turf";
+// import type { Node, Segment, Venue, WmeSDK } from "wme-sdk-typings";
 
 (function () {
   'use strict'
@@ -44,7 +49,9 @@
       title: 'POI Geometry',
       description: 'Change geometry in the current view area',
       warning: '⚠️ This option is available for editors with a rank higher than ' + REQUIRED_LEVEL,
+      help: 'You can use the <strong>Keyboard shortcuts</strong> to apply the settings. It\'s more convenient than clicking on the buttons.',
       orthogonalize: 'Orthogonalize',
+      smooth: 'Smooth',
       simplify: 'Simplify',
       scale: 'Scale',
       copy: 'Copy',
@@ -54,7 +61,9 @@
       title: 'Геометрія POI',
       description: 'Змінити геометрію об’єктів у поточному розташуванні',
       warning: '⚠️ Ця опція доступна лише для редакторів з рангом вищім ніж ' + REQUIRED_LEVEL,
+      help: 'Використовуйте <strong>гарячі клавіши</strong>, це значно швидше ніж використовувати кнопки',
       orthogonalize: 'Вирівняти',
+      smooth: 'Згладити',
       simplify: 'Спростити',
       scale: 'Масштабувати',
       copy: 'Копіювати',
@@ -64,7 +73,9 @@
       title: 'Геометрия POI',
       description: 'Изменить геометрию объектов в текущем расположении',
       warning: '⚠️ Эта опция доступна для редакторов с рангов выше ' + REQUIRED_LEVEL,
+      help: 'Используйте <strong>комбинации клавиш</strong>, и не надо будет клацать кнопки',
       orthogonalize: 'Выровнять',
+      smooth: 'Сгладить',
       simplify: 'Упростить',
       scale: 'Масштабировать',
       copy: 'Копировать',
@@ -72,52 +83,64 @@
     }
   }
 
+  WMEUI.addTranslation(NAME, TRANSLATION)
+
   const STYLE =
     'button.waze-btn.e40 { margin: 0 4px 4px 0; padding: 2px; width: 45px; border: 1px solid #ddd; } ' +
     'p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
-    'p.e40-warning { color: #f77 }'
+    'p.e40-warning { color: #f77 }' +
+    '#sidebar p.e40-blue { background-color:#0057B8;color:white;height:32px;text-align:center;line-height:32px;font-size:24px;margin:0; }' +
+    '#sidebar p.e40-yellow { background-color:#FFDD00;color:black;height:32px;text-align:center;line-height:32px;font-size:24px;margin:0; }'
 
-  WMEUI.addTranslation(NAME, TRANSLATION)
   WMEUI.addStyle(STYLE)
-
-  // Set shortcuts title
-  WMEUIShortcut.setGroupTitle(NAME, I18n.t(NAME).title)
 
   const panelButtons = {
     A: {
-      title: '🔲',
-      description: I18n.t(NAME).orthogonalize,
+      title: '⚫️',
+      description: I18n.t(NAME).smooth,
       shortcut: 'S+49',
-      callback: () => orthogonalize()
+      callback: () => smooth()
     },
     B: {
-      title: '〽️',
-      description: I18n.t(NAME).simplify,
+      title: '⬛️',
+      description: I18n.t(NAME).orthogonalize,
       shortcut: 'S+50',
-      callback: () => simplify()
+      callback: () => orthogonalize()
     },
     C: {
-      title: '500m²',
-      description: I18n.t(NAME).scale + ' 500m²',
+      title: '1️⃣ 📐',
+      description: I18n.t(NAME).simplify + ' (tolerance = 0.00001)',
       shortcut: 'S+51',
-      callback: () => scaleSelected(500)
+      callback: () => simplify(0.00001)
     },
     D: {
-      title: '650m²',
-      description: I18n.t(NAME).scale + ' 650m²',
+      title: '5️⃣ 📐',
+      description: I18n.t(NAME).simplify + ' (tolerance = 0.00005)',
       shortcut: 'S+52',
-      callback: () => scaleSelected(650)
+      callback: () => simplify(0.00005)
     },
     E: {
-      title: '650+',
-      description: I18n.t(NAME).scale + ' 650+',
+      title: '500m²',
+      description: I18n.t(NAME).scale + ' 500m²',
       shortcut: 'S+53',
-      callback: () => scaleSelected(650, true)
+      callback: () => scaleSelected(500)
     },
     F: {
+      title: '650m²',
+      description: I18n.t(NAME).scale + ' 650m²',
+      shortcut: 'S+54',
+      callback: () => scaleSelected(650)
+    },
+    G: {
+      title: '650+',
+      description: I18n.t(NAME).scale + ' 650+',
+      shortcut: 'S+55',
+      callback: () => scaleSelected(650, true)
+    },
+    H: {
       title: '<i class="fa fa-clone" aria-hidden="true"></i>',
       description: I18n.t(NAME).copy,
-      shortcut: 'S+54',
+      shortcut: 'S+56',
       callback: () => copyPlaces()
     }
   }
@@ -126,87 +149,145 @@
     A: {
       title: '🔲',
       description: I18n.t(NAME).orthogonalize,
-      shortcut: null,
       callback: () => orthogonalizeAll()
     },
     B: {
-      title: '〽️',
+      title: '1️⃣ 📐',
       description: I18n.t(NAME).simplify,
-      shortcut: null,
-      callback: () => simplifyAll()
+      callback: () => simplifyAll(0.00001)
     },
     C: {
+      title: '5️⃣ 📐',
+      description: I18n.t(NAME).simplify,
+      callback: () => simplifyAll(0.00005)
+    },
+    D: {
       title: '500+',
       description: I18n.t(NAME).scale + ' 500m²+',
-      shortcut: null,
       callback: () => scaleAll(500, true)
     }
   }
 
-  let WazeActionUpdateFeatureGeometry
-  let WazeActionUpdateFeatureAddress
-  let WazeFeatureVectorLandmark
-  let WazeActionAddLandmark
-
   class E40 extends WMEBase {
-    constructor (name) {
+    constructor (name, tabButtons, panelButtons) {
       super(name)
 
-      this.helper = new WMEUIHelper(name)
+      this.initHelper()
 
-      this.panel = this.helper.createPanel(I18n.t(name).title)
-      this.panel.addButtons(panelButtons)
+      this.initTab(tabButtons)
 
+      this.initPanel(panelButtons)
+
+      this.initShortcuts(panelButtons)
+    }
+
+    initHelper() {
+      this.helper = new WMEUIHelper(this.name)
+    }
+
+    initTab (buttons) {
       let tab = this.helper.createTab(
-        I18n.t(name).title,
+        I18n.t(this.name).title,
         {
+          sidebar: this.wmeSDK.Sidebar,
           image: GM_info.script.icon
         }
       )
-      tab.addText('description', I18n.t(name).description)
-      if (W.loginManager.user.getRank() > REQUIRED_LEVEL) {
-        tab.addButtons(tabButtons)
+      tab.addText('description', I18n.t(this.name).description)
+      if (this.wmeSDK.State.getUserInfo().rank >= REQUIRED_LEVEL) {
+        tab.addButtons(buttons)
       } else {
-        tab.addText('warning', I18n.t(name).warning)
+        tab.addText('warning', I18n.t(this.name).warning)
       }
+      tab.addDiv('text', I18n.t(this.name).help)
       tab.addText(
         'info',
         '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version
       )
+      tab.addText('blue', 'made in')
+      tab.addText('yellow', 'Ukraine')
       tab.inject()
+    }
+
+    initPanel (buttons) {
+      this.panel = this.helper.createPanel(
+        I18n.t(this.name).title
+      )
+      this.panel.addButtons(buttons)
+    }
+
+    initShortcuts (buttons) {
+      for (let btn in buttons) {
+        if (buttons.hasOwnProperty(btn)) {
+          let button = buttons[btn]
+          if (button.shortcut) {
+            let shortcut = {
+              callback: button.callback,
+              description: button.description,
+              shortcutId: this.id + '-' + btn,
+              shortcutKeys: button.shortcut,
+            };
+
+            if (!this.wmeSDK.Shortcuts.areShortcutKeysInUse({ shortcutKeys: button.shortcut })) {
+              this.wmeSDK.Shortcuts.createShortcut(shortcut);
+            } else {
+              this.log('Shortcut already in use')
+            }
+          }
+        }
+      }
     }
 
     /**
      * Handler for `place.wme` event
      * @param {jQuery.Event} event
      * @param {HTMLElement} element
-     * @param {W.model} model
+     * @param {SDK.Venue} model
      */
     onPlace (event, element, model) {
-      if (!model.isGeometryEditable()) {
-        return
+      if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+        this.createPanel(event, element)
       }
-      this.createPanel(event, element)
     }
 
     /**
      * Handler for `venues.wme` event
      * @param {jQuery.Event} event
      * @param {HTMLElement} element
-     * @param {Array} models
+     * @param {Array<Venue>} models
      * @return {Null}
      */
     onVenues (event, element, models) {
-      models = models.filter(el => !el.isPoint() && el.isGeometryEditable())
+      models = models.filter(model => !model.isResidential
+        && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }))
+
+      console.log(element)
       if (models.length > 0) {
         this.createPanel(event, element)
       }
     }
 
     /**
+     * @param {Array<String>} except
+     * @return {Array<Venue>} models
+     */
+    getAllPlaces(except = []) {
+      let venues = this.getAllVenues(except)
+      return venues.filter(venue => venue.geometry.type === 'Polygon')
+    }
+
+    /**
+     * @return {Array<Venue>} models
+     */
+    getSelectedPlaces() {
+      let venues = this.getSelectedVenues()
+      return venues.filter(venue => venue.geometry.type === 'Polygon')
+    }
+
+    /**
      * Create panel with buttons
      * @param event
-     * @param element
+     * @param {HTMLElement} element
      */
     createPanel (event, element) {
       if (element.querySelector('div.form-group.e40')) {
@@ -221,62 +302,69 @@
      * Updated label
      */
     updateLabel () {
-      let places = getSelectedPlaces()
+      let places = this.getSelectedPlaces()
+
       if (places.length === 0) {
         return
       }
       let info = []
       for (let i = 0; i < places.length; i++) {
-        let selected = places[i]
-        info.push(Math.round(selected.getOLGeometry().getGeodesicArea(W.map.getProjectionObject())) + 'm²')
+        info.push(Math.round(turf.area(places[i].geometry)) + 'm²')
       }
       let label = I18n.t(NAME).title
       if (info.length) {
         label += ' (' + info.join(', ') + ')'
       }
 
-      let elm = document.querySelector('div.form-group.e40 label')
+      let elm = document.querySelector('div.form-group.e40 wz-label')
       if (elm) elm.innerText = label
     }
   }
 
+  let E40Instance
+
   $(document).on('bootstrap.wme', () => {
-    // Require Waze components
-    WazeActionUpdateFeatureGeometry = require('Waze/Action/UpdateFeatureGeometry')
-    WazeActionUpdateFeatureAddress = require('Waze/Action/UpdateFeatureAddress')
-    WazeFeatureVectorLandmark = require('Waze/Feature/Vector/Landmark')
-    WazeActionAddLandmark = require('Waze/Action/AddLandmark')
+    E40Instance = new E40(NAME, tabButtons, panelButtons)
 
-    let E40Instance = new E40(NAME)
-
-    W.model.actionManager.events.register('afterundoaction', null, E40Instance.updateLabel)
-    W.model.actionManager.events.register('afterclearactions', null, E40Instance.updateLabel)
-    W.model.actionManager.events.register('afteraction', null, E40Instance.updateLabel)
+    E40Instance.wmeSDK.Events.trackDataModelEvents({ dataModelName: "venues" })
+    E40Instance.wmeSDK.Events.on({
+      eventName: "wme-data-model-objects-changed",
+      eventHandler: ({dataModelName, objectIds}) => {
+        // console.log(dataModelName)
+        // console.log(objectIds)
+        E40Instance.updateLabel()
+      }
+    });
   })
 
   /**
-   * Get selected Area POI
-   * @return {Array}
+   * Scale selected place(s) to X m²
+   * @param {Number} x square meters
+   * @param {Boolean} orMore flag
+   * @return {boolean}
    */
-  function getSelectedPlaces () {
-    let selected
-    selected = WME.getSelectedVenues()
-    selected = selected.filter(el => !el.isPoint())
-    return selected
-  }
-
-  // Scale selected place(s) to X m²
   function scaleSelected (x, orMore = false) {
-    scaleArray(getSelectedPlaces(), x, orMore)
+    scaleArray(E40Instance.getSelectedPlaces(), x, orMore)
     return false
   }
 
-  // Scale all places in the editor area to X m²
+  /**
+   * Scale all places in the editor area to X m²
+   * @param {Number} x square meters
+   * @param {Boolean} orMore flag
+   * @return {boolean}
+   */
   function scaleAll (x = 650, orMore = true) {
-    scaleArray(WME.getVenues().filter(el => !el.isPoint()), x, orMore)
+    scaleArray(E40Instance.getAllPlaces(), x, orMore)
     return false
   }
 
+  /**
+   * Scale places to X m²
+   * @param {Array<Venue>} elements
+   * @param {Number} x square meters
+   * @param {Boolean} orMore flag
+   */
   function scaleArray (elements, x, orMore = false) {
     console.groupCollapsed(
       '%c' + NAME + ': 📏 %c try to scale ' + (elements.length) + ' element(s) to ' + x + 'm²',
@@ -285,24 +373,18 @@
     )
     let total = 0
     for (let i = 0; i < elements.length; i++) {
-      let selected = elements[i]
       try {
-        let oldOLGeometry = selected.getOLGeometry().clone()
-        let newOLGeometry = selected.getOLGeometry().clone()
-
-        let scale = Math.sqrt((x + 5) / oldOLGeometry.getGeodesicArea(W.map.getProjectionObject()))
+        let scale = Math.sqrt((x + 5) / turf.area(elements[i].geometry))
         if (scale < 1 && orMore) {
           continue
         }
-        newOLGeometry.resize(scale, newOLGeometry.getCentroid())
 
-        let action = new WazeActionUpdateFeatureGeometry(
-          selected,
-          W.model.venues,
-          W.userscripts.toGeoJSONGeometry(oldOLGeometry),
-          W.userscripts.toGeoJSONGeometry(newOLGeometry)
-        )
-        W.model.actionManager.add(action)
+        let geometry = turf.transformScale(elements[i].geometry, scale)
+
+        E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+          venueId: elements[i].id, geometry
+        })
+
         total++
       } catch (e) {
         console.log('skipped', e)
@@ -312,47 +394,50 @@
     console.groupEnd()
   }
 
-  // Orthogonalize selected place(s)
+  /**
+   * Orthogonalize selected place(s)
+   * @return {boolean}
+   */
   function orthogonalize () {
-    orthogonalizeArray(getSelectedPlaces())
+    orthogonalizeArray(E40Instance.getSelectedPlaces())
     return false
   }
 
-  // Orthogonalize all places in the editor area
+  /**
+   * Orthogonalize all places in the editor area
+   * @return {boolean}
+   */
   function orthogonalizeAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    orthogonalizeArray(WME.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
+    orthogonalizeArray(
+      E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES'])
+    )
     return false
   }
 
+  /**
+   * Orthogonalize place(s)
+   * @param {Array<Venue>} elements
+   */
   function orthogonalizeArray (elements) {
     console.groupCollapsed(
-      '%c' + NAME + ': 🔲 %c try to orthogonalize ' + (elements.length) + ' element(s)',
+      '%c' + NAME + ': ⬛️ %c try to orthogonalize ' + (elements.length) + ' element(s)',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
     )
     let total = 0
     // skip points
     for (let i = 0; i < elements.length; i++) {
-      let selected = elements[i]
       try {
+        let geometry = orthogonalizeGeometry(elements[i].geometry)
 
-        let oldGeometry = { ...selected.getGeometry() }
-        let currentOLGeometry = selected.getOLGeometry()
+        console.log(elements[i].geometry.coordinates[0], geometry.coordinates[0])
 
-        let oldNodes = currentOLGeometry.clone().components[0].components
-        let newNodes = orthogonalizeGeometry(selected.getOLGeometry().clone().components[0].components)
-
-
-        if (!compare(oldNodes, newNodes)) {
-          currentOLGeometry.components[0].components = [].concat(newNodes)
-          currentOLGeometry.components[0].clearBounds()
-
-          selected.setOLGeometry(currentOLGeometry)
-
-          let action = new WazeActionUpdateFeatureGeometry(selected, W.model.venues, oldGeometry, selected.getGeometry())
-          W.model.actionManager.add(action)
+        if (!compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
+          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: elements[i].id, geometry
+          })
           total++
         }
       } catch (e) {
@@ -364,255 +449,285 @@
   }
 
   /**
-   * Clone OL Geometry and orthogonalize it
-   * @param nodes
-   * @param threshold
-   * @return {*}
+   * Orthogonalizes a polygon's geometry by iteratively snapping angles
+   * to be closer to 90 or 180 degrees.
+   *
+   * This is a refactor of your original algorithm to use Turf.js for
+   * projections and data handling.
+   *
+   * @param {Feature<Polygon>|Polygon} geojsonPolygon The polygon to modify.
+   * @param {number} [threshold=12] Degrees within 90 or 180 to "snap".
+   * @returns {Feature<Polygon>} A new polygon with snapped vertices.
    */
-  function orthogonalizeGeometry (nodes, threshold = 12) {
+  function orthogonalizeGeometry(geojsonPolygon, threshold = 12) {
 
-    let nomthreshold = threshold, // degrees within right or straight to alter
-      lowerThreshold = Math.cos((90 - nomthreshold) * Math.PI / 180),
-      upperThreshold = Math.cos(nomthreshold * Math.PI / 180)
+    // --- Threshold setup (from original) ---
+    const nomThreshold = threshold; // degrees within right or straight to alter
+    const lowerThreshold = Math.cos((90 - nomThreshold) * Math.PI / 180);
+    const upperThreshold = Math.cos(nomThreshold * Math.PI / 180);
 
-    function Orthogonalize (nodes) {
-      let points = nodes.slice(0, -1).map(function (n) {
-          let p = n.clone().transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'))
-          p.y = lat2latp(p.y)
-          return p
-        }),
-        corner = { i: 0, dotp: 1 },
-        epsilon = 1e-4,
-        i, j, score, motions
-
-      // Triangle
-      if (nodes.length === 4) {
-        for (i = 0; i < 1000; i++) {
-          motions = points.map(calcMotion)
-
-          let tmp = addPoints(points[corner.i], motions[corner.i])
-          points[corner.i].x = tmp.x
-          points[corner.i].y = tmp.y
-
-          score = corner.dotp
-          if (score < epsilon) {
-            break
-          }
-        }
-
-        let n = points[corner.i]
-        n.y = latp2lat(n.y)
-        let pp = n.transform(new OpenLayers.Projection('EPSG:4326'), new OpenLayers.Projection('EPSG:900913'))
-
-        let id = nodes[corner.i].id
-        for (i = 0; i < nodes.length; i++) {
-          if (nodes[i].id !== id) {
-            continue
-          }
-
-          nodes[i].x = pp.x
-          nodes[i].y = pp.y
-        }
-
-        return nodes
-      } else {
-        let best,
-          originalPoints = nodes.slice(0, -1).map(function (n) {
-            let p = n.clone().transform(new OpenLayers.Projection('EPSG:900913'), new OpenLayers.Projection('EPSG:4326'))
-            p.y = lat2latp(p.y)
-            return p
-          })
-        score = Infinity
-
-        for (i = 0; i < 1000; i++) {
-          motions = points.map(calcMotion)
-          for (j = 0; j < motions.length; j++) {
-            let tmp = addPoints(points[j], motions[j])
-            points[j].x = tmp.x
-            points[j].y = tmp.y
-          }
-          let newScore = squareness(points)
-          if (newScore < score) {
-            best = [].concat(points)
-            score = newScore
-          }
-          if (score < epsilon) {
-            break
-          }
-        }
-
-        points = best
-
-        for (i = 0; i < points.length; i++) {
-          // only move the points that actually moved
-          if (originalPoints[i].x !== points[i].x || originalPoints[i].y !== points[i].y) {
-            let n = points[i]
-            n.y = latp2lat(n.y)
-            let pp = n.transform(new OpenLayers.Projection('EPSG:4326'), new OpenLayers.Projection('EPSG:900913'))
-
-            let id = nodes[i].id
-            for (j = 0; j < nodes.length; j++) {
-              if (nodes[j].id !== id) {
-                continue
-              }
-
-              nodes[j].x = pp.x
-              nodes[j].y = pp.y
-            }
-          }
-        }
-
-        // remove empty nodes on straight sections
-        for (i = 0; i < points.length; i++) {
-          let dotp = normalizedDotProduct(i, points)
-          if (dotp < -1 + epsilon) {
-            let id = nodes[i].id
-            for (j = 0; j < nodes.length; j++) {
-              if (nodes[j].id !== id) {
-                continue
-              }
-
-              nodes[j] = false
-            }
-          }
-        }
-
-        return nodes.filter(item => item !== false)
+    // --- Vector Math Helpers (unchanged from original) ---
+    function subtractPoints(a, b) {
+      return { x: a.x - b.x, y: a.y - b.y };
+    }
+    function addPoints(a, b) {
+      return { x: a.x + b.x, y: a.y + b.y };
+    }
+    function euclideanDistance(a, b) {
+      let x = a.x - b.x, y = a.y - b.y;
+      return Math.sqrt((x * x) + (y * y));
+    }
+    function normalizePoint(point, scale) {
+      let vector = { x: 0, y: 0 };
+      let length = Math.sqrt(point.x * point.x + point.y * point.y);
+      if (length !== 0) {
+        vector.x = point.x / length;
+        vector.y = point.y / length;
       }
+      vector.x *= scale;
+      vector.y *= scale;
+      return vector;
+    }
 
-      function calcMotion (b, i, array) {
-        let a = array[(i - 1 + array.length) % array.length],
-          c = array[(i + 1) % array.length],
-          p = subtractPoints(a, b),
-          q = subtractPoints(c, b),
-          scale, dotp
-
-        scale = 2 * Math.min(euclideanDistance(p, { x: 0, y: 0 }), euclideanDistance(q, { x: 0, y: 0 }))
-        p = normalizePoint(p, 1.0)
-        q = normalizePoint(q, 1.0)
-
-        dotp = filterDotProduct(p.x * q.x + p.y * q.y)
-
-        // nasty hack to deal with almost-straight segments (angle is closer to 180 than to 90/270).
-        if (array.length > 3) {
-          if (dotp < -0.707106781186547) {
-            dotp += 1.0
-          }
-        } else if (dotp && Math.abs(dotp) < corner.dotp) {
-          corner.i = i
-          corner.dotp = Math.abs(dotp)
-        }
-
-        return normalizePoint(addPoints(p, q), 0.1 * dotp * scale)
+    // --- Algorithm Helpers (unchanged from original) ---
+    function filterDotProduct(dotp) {
+      if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold) {
+        return dotp;
       }
+      return 0;
     }
 
-    function lat2latp (lat) {
-      return 180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * (Math.PI / 180) / 2))
-    }
-
-    function latp2lat (a) {
-      return 180 / Math.PI * (2 * Math.atan(Math.exp(a * Math.PI / 180)) - Math.PI / 2)
-    }
-
-    function squareness (points) {
-      return points.reduce(function (sum, val, i, array) {
-        let dotp = normalizedDotProduct(i, array)
-
-        dotp = filterDotProduct(dotp)
-        return sum + 2.0 * Math.min(Math.abs(dotp - 1.0), Math.min(Math.abs(dotp), Math.abs(dotp + 1)))
-      }, 0)
-    }
-
-    function normalizedDotProduct (i, points) {
+    function normalizedDotProduct(i, points) {
       let a = points[(i - 1 + points.length) % points.length],
         b = points[i],
         c = points[(i + 1) % points.length],
         p = subtractPoints(a, b),
-        q = subtractPoints(c, b)
+        q = subtractPoints(c, b);
 
-      p = normalizePoint(p, 1.0)
-      q = normalizePoint(q, 1.0)
+      p = normalizePoint(p, 1.0);
+      q = normalizePoint(q, 1.0);
 
-      return p.x * q.x + p.y * q.y
+      return p.x * q.x + p.y * q.y;
     }
 
-    function subtractPoints (a, b) {
-      return { x: a.x - b.x, y: a.y - b.y }
+    function squareness(points) {
+      return points.reduce(function (sum, val, i, array) {
+        let dotp = normalizedDotProduct(i, array);
+        dotp = filterDotProduct(dotp);
+        return sum + 2.0 * Math.min(Math.abs(dotp - 1.0), Math.min(Math.abs(dotp), Math.abs(dotp + 1)));
+      }, 0);
     }
 
-    function addPoints (a, b) {
-      return { x: a.x + b.x, y: a.y + b.y }
-    }
+    // --- Core iterative function, rewritten to use Turf ---
+    function Orthogonalize(polygon) {
+      // 1. Project to Mercator (EPSG:3857) to work with planar {x, y} coordinates
+      const projectedPoly = turf.toMercator(polygon);
+      const coords = turf.getCoords(projectedPoly)[0];
 
-    function euclideanDistance (a, b) {
-      let x = a.x - b.x, y = a.y - b.y
-      return Math.sqrt((x * x) + (y * y))
-    }
+      // 2. Convert to algorithm's {x, y} format, remove closing point
+      let points = coords.slice(0, -1).map(c => ({ x: c[0], y: c[1] }));
 
-    function normalizePoint (point, scale) {
-      let vector = { x: 0, y: 0 }
-      let length = Math.sqrt(point.x * point.x + point.y * point.y)
-      if (length !== 0) {
-        vector.x = point.x / length
-        vector.y = point.y / length
+      let corner = { i: 0, dotp: 1 };
+      const epsilon = 1e-4;
+      let i, j, score, motions;
+
+      // This helper must be in this scope to access `corner`
+      function calcMotion(b, i, array) {
+        let a = array[(i - 1 + array.length) % array.length],
+          c = array[(i + 1) % array.length],
+          p = subtractPoints(a, b),
+          q = subtractPoints(c, b),
+          scale, dotp;
+
+        scale = 2 * Math.min(euclideanDistance(p, { x: 0, y: 0 }), euclideanDistance(q, { x: 0, y: 0 }));
+        p = normalizePoint(p, 1.0);
+        q = normalizePoint(q, 1.0);
+
+        dotp = filterDotProduct(p.x * q.x + p.y * q.y);
+
+        // Nasty hack from original
+        if (array.length > 3) {
+          if (dotp < -0.707106781186547) {
+            dotp += 1.0;
+          }
+        } else if (dotp && Math.abs(dotp) < corner.dotp) {
+          corner.i = i;
+          corner.dotp = Math.abs(dotp);
+        }
+        return normalizePoint(addPoints(p, q), 0.1 * dotp * scale);
       }
 
-      vector.x *= scale
-      vector.y *= scale
+      // 3. Run the iterative algorithm
 
-      return vector
-    }
+      // --- Handle 3-point case (Triangle) ---
+      // (Original checks nodes.length === 4, which is 3 unique points)
+      if (points.length === 3) {
+        for (i = 0; i < 1000; i++) {
+          motions = points.map(calcMotion);
 
-    function filterDotProduct (dotp) {
-      if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold) {
-        return dotp
+          // Only move the "sharpest" corner
+          let tmp = addPoints(points[corner.i], motions[corner.i]);
+          points[corner.i].x = tmp.x;
+          points[corner.i].y = tmp.y;
+
+          score = corner.dotp;
+          if (score < epsilon) {
+            break;
+          }
+        }
+      }
+      // --- Handle N-point case ---
+      else {
+        let best;
+        score = Infinity;
+
+        for (i = 0; i < 1000; i++) {
+          motions = points.map(calcMotion);
+          for (j = 0; j < motions.length; j++) {
+            let tmp = addPoints(points[j], motions[j]);
+            points[j].x = tmp.x;
+            points[j].y = tmp.y;
+          }
+
+          let newScore = squareness(points);
+          if (newScore < score) {
+            best = points.map(p => ({ ...p })); // Store a copy of the best points
+            score = newScore;
+          }
+          if (score < epsilon) {
+            break;
+          }
+        }
+        points = best;
       }
 
-      return 0
+      // 4. Remove collinear points (original's final loop)
+      let finalCoords = [];
+      if (points) {
+        for (i = 0; i < points.length; i++) {
+          let dotp = normalizedDotProduct(i, points);
+          // if angle is not ~180 degrees, keep the point
+          if (dotp > -1 + epsilon) {
+            finalCoords.push([points[i].x, points[i].y]);
+          }
+        }
+      } else {
+        // Algorithm failed or points was undefined
+        return polygon;
+      }
+
+      // 5. Convert back to GeoJSON
+      if (finalCoords.length < 3) {
+        console.warn("Orthogonalization failed, returning original polygon.");
+        return polygon; // Algorithm failed
+      }
+
+      finalCoords.push(finalCoords[0]); // Close the polygon ring
+
+      // Create a new polygon from the modified (and still projected) coords
+      const newProjectedPoly = turf.polygon([finalCoords]);
+
+      // Project back to WGS84 (lat/lon)
+      const newGeoJsonPoly = turf.toWgs84(newProjectedPoly);
+
+      // Preserve properties from the original
+      newGeoJsonPoly.properties = turf.getType(geojsonPolygon) === 'Feature' ?
+        geojsonPolygon.properties : {};
+
+      return newGeoJsonPoly;
     }
 
-    return Orthogonalize(nodes)
+    // --- Entry point of the main function ---
+    let polygon = Orthogonalize(geojsonPolygon);
+    return polygon.geometry
   }
 
-  // Simplify selected place(s)
-  function simplify (factor = 8) {
-    simplifyArray(getSelectedPlaces(), factor)
+  /**
+   * Smooth selected place(s)
+   * @return {boolean}
+   */
+  function smooth () {
+    smoothArray(
+      E40Instance.getSelectedPlaces()
+    )
     return false
   }
 
-  // Simplify all places in the editor area
-  function simplifyAll () {
-    // skip parking, natural and outdoors
-    // TODO: make options for filters
-    simplifyArray(WME.getVenues(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']).filter(el => !el.isPoint()))
-    return false
-  }
-
-  function simplifyArray (elements, factor = 8) {
+  /**
+   * Smooth place(s)
+   * @param {Array<Venue>} elements
+   */
+  function smoothArray (elements) {
     console.groupCollapsed(
-      '%c' + NAME + ': 〽️ %c try to simplify ' + (elements.length) + ' element(s)',
+      '%c' + NAME + ': ⚫️ %c try to smooth ' + (elements.length) + ' element(s)',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
     )
     let total = 0
     for (let i = 0; i < elements.length; i++) {
-      let selected = elements[i]
       try {
-        let oldOLGeometry = selected.getOLGeometry().clone()
-        let ls = new OpenLayers.Geometry.LineString(oldOLGeometry.components[0].components)
-        ls = ls.simplify(factor)
-        let newOLGeometry = new OpenLayers.Geometry.Polygon(new OpenLayers.Geometry.LinearRing(ls.components))
+        let geometry = turf.polygonSmooth(elements[i].geometry).features[0].geometry;
 
-        if (newOLGeometry.components[0].components.length < oldOLGeometry.components[0].components.length) {
-          W.model.actionManager.add(
-            new WazeActionUpdateFeatureGeometry(
-              selected,
-              W.model.venues,
-              W.userscripts.toGeoJSONGeometry(oldOLGeometry),
-              W.userscripts.toGeoJSONGeometry(newOLGeometry)
-            )
-          )
+        if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
+          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: elements[i].id, geometry
+          })
+          total++
+        }
+      } catch (e) {
+        console.log('skipped', e)
+      }
+    }
+    console.log(total + ' element(s) was smoothed')
+    console.groupEnd()
+  }
+
+  /**
+   * Simplify selected place(s)
+   * @param {Number} tolerance
+   * @return {boolean}
+   */
+  function simplify (tolerance = 0.00001) {
+    simplifyArray(
+      E40Instance.getSelectedPlaces(), tolerance
+    )
+    return false
+  }
+
+  /**
+   * Simplify all places in the editor area
+   * @param {Number} tolerance
+   * @return {boolean}
+   */
+  function simplifyAll (tolerance = 0.00001) {
+    // skip parking, natural and outdoors
+    simplifyArray(
+      E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']),
+      tolerance
+    )
+    return false
+  }
+
+  /**
+   * Simplify place(s)
+   * @param {Array<Venue>} elements
+   * @param {Number} tolerance
+   */
+  function simplifyArray (elements, tolerance = 0.00001) {
+    console.groupCollapsed(
+      '%c' + NAME + ': < tolerance=' + tolerance + ' > %c try to simplify ' + (elements.length) + ' element(s)',
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+    let total = 0
+    for (let i = 0; i < elements.length; i++) {
+      try {
+        let geometry = turf.simplify(elements[i].geometry, { tolerance })
+
+        if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
+          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: elements[i].id, geometry
+          })
           total++
         }
       } catch (e) {
@@ -622,31 +737,12 @@
     console.log(total + ' element(s) was simplified')
     console.groupEnd()
   }
-
-  /**
-   * Compare two polygons point-by-point
-   *
-   * @return boolean
-   */
-  function compare (geo1, geo2) {
-    if (geo1.length !== geo2.length) {
-      return false
-    }
-    for (let i = 0; i < geo1.length; i++) {
-      if (Math.abs(geo1[i].x - geo2[i].x) > .1
-        || Math.abs(geo1[i].y - geo2[i].y) > .1) {
-        return false
-      }
-    }
-    return true
-  }
-
   /**
    * Copy selected places
    * Last of them will be chosen
    */
   function copyPlaces () {
-    let venues = getSelectedPlaces()
+    let venues = E40Instance.getSelectedPlaces()
 
     for (let i = 0; i < venues.length; i++) {
       copyPlace(venues[i])
@@ -654,23 +750,38 @@
   }
 
   /**
-   * Create copy for place
-   * @param oldPlace
+   * Compare two polygons point-by-point
+   *
+   * @param {Array} coordinates1
+   * @param {Array} coordinates2
+   * @return boolean
    */
-  function copyPlace (oldPlace) {
+  function compare (coordinates1, coordinates2) {
+    if (coordinates1.length !== coordinates2.length) {
+      return false
+    }
+    for (let i = 0; i < coordinates1.length; i++) {
+      if (Math.abs(coordinates1[i][0] - coordinates2[i][0]) > .00001
+        || Math.abs(coordinates1[i][1] - coordinates2[i][1]) > .00001) {
+        return false
+      }
+    }
+    return true
+  }
+
+  /**
+   * Create copy for place
+   * @param {Venue} venue
+   */
+  function copyPlace (venue) {
     console.log(
-      '%c' + NAME + ': %c created a copy of the POI ' + oldPlace.attributes.name,
+      '%c' + NAME + ': %c created a copy of the POI ' + venue.name,
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
     )
 
-    // copy all attributes of the old place
-    // maybe we should except something in the feature
-    let newPlace = new WazeFeatureVectorLandmark({ ...oldPlace.attributes})
-
-    newPlace.setAttribute('name', oldPlace.getAttribute('name') + ' (copy)')
-
-    let geometry = { ... oldPlace.getGeometry()}
+    let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
+    let geometry = venue.geometry
 
     // little move for new POI, uses geoJSON
     for (let i = 0; i < geometry.coordinates[0].length; i++) {
@@ -678,22 +789,30 @@
       geometry.coordinates[0][i][1] += 0.00005
     }
 
-    newPlace.setGeometry(geometry)
+    let venueId = E40Instance.wmeSDK.DataModel.Venues.addVenue(
+      {
+        category: venue.categories[0],
+        geometry: geometry
+      }
+    )
 
-    // add new POI
-    W.model.actionManager.add(new WazeActionAddLandmark(newPlace))
-
-    // update address of new POI
-    // set the same Country/State/Street and skip the house number
-    let address = {
-      countryID: oldPlace.getAddress().getCountry().getID(),
-      stateID: oldPlace.getAddress().getState().getID(),
-      cityName: oldPlace.getAddress().getCityName(),
-      streetName: oldPlace.getAddress().getStreetName()
+    let newVenue = {
+      isAdLocked: venue.isAdLocked,
+      isResidential: venue.isResidential,
+      name: venue.name + ' (copy)',
+      venueId: String(venueId),
     }
-    W.model.actionManager.add(new WazeActionUpdateFeatureAddress(newPlace, address))
 
-    W.selectionManager.setSelectedModels(newPlace)
+    E40Instance.wmeSDK.DataModel.Venues.updateVenue(newVenue)
+
+    if (address?.street?.id) {
+      E40Instance.wmeSDK.DataModel.Venues.updateAddress(
+        {
+          venueId: String(venueId),
+          streetId: address.street.id,
+        }
+      )
+    }
   }
 
 })()
