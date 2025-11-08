@@ -44,5 +44,6 @@ Create additional panel with buttons for change POI geometry in one click.
 
 Author homepage: https://anton.shevchuk.name/  
 Author pet projects: https://hohli.com/  
+Support author: https://donate.hohli.com/  
 Script homepage: https://github.com/AntonShevchuk/wme-e40/  
 GreasyFork: https://greasyfork.org/uk/scripts/388271-wme-e40-geometry  

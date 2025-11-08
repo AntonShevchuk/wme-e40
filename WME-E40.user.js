@@ -27,12 +27,10 @@
 /* global require */
 /* global $, jQuery */
 /* global I18n */
-/* global OpenLayers */
 /* global WMEBase, WMEUI, WMEUIHelper */
 /* global Container, Settings, SimpleCache, Tools */
-
-// import * as turf from "@turf/turf";
-// import type { Node$1, Segment, Venue, WmeSDK } from "wme-sdk-typings";
+/* global Node$1, Segment, Venue, VenueAddress, WmeSDK */
+/* global turf */
 
 (function () {
   'use strict'
@@ -54,6 +52,7 @@
       smooth: 'Smooth',
       simplify: 'Simplify',
       scale: 'Scale',
+      rotate: 'Rotate',
       copy: 'Copy',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
@@ -66,6 +65,7 @@
       smooth: 'Згладити',
       simplify: 'Спростити',
       scale: 'Масштабувати',
+      rotate: 'Повернути',
       copy: 'Копіювати',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
@@ -78,6 +78,7 @@
       smooth: 'Сгладить',
       simplify: 'Упростить',
       scale: 'Масштабировать',
+      rotate: 'Повернуть',
       copy: 'Копировать',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     }
@@ -94,15 +95,16 @@
 
   WMEUI.addStyle(STYLE)
 
+  // https://fontawesome.com/v4/icons/
   const panelButtons = {
     A: {
-      title: '⚫️',
+      title: '<i class="fa fa-circle-o" aria-hidden="true"></i>',
       description: I18n.t(NAME).smooth,
       shortcut: 'S+49',
       callback: () => smooth()
     },
     B: {
-      title: '⬛️',
+      title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
       description: I18n.t(NAME).orthogonalize,
       shortcut: 'S+50',
       callback: () => orthogonalize()
@@ -114,40 +116,59 @@
       callback: () => simplify(0.00001)
     },
     D: {
-      title: '5️⃣ 📐',
-      description: I18n.t(NAME).simplify + ' (tolerance = 0.00005)',
+      title: '3️⃣ 📐',
+      description: I18n.t(NAME).simplify + ' (tolerance = 0.00003)',
       shortcut: 'S+52',
-      callback: () => simplify(0.00005)
+      callback: () => simplify(0.00003)
     },
     E: {
-      title: '500m²',
-      description: I18n.t(NAME).scale + ' 500m²',
+      title: '5️⃣ 📐',
+      description: I18n.t(NAME).simplify + ' (tolerance = 0.00005)',
       shortcut: 'S+53',
-      callback: () => scaleSelected(500)
+      callback: () => simplify(0.00005)
     },
     F: {
-      title: '650m²',
-      description: I18n.t(NAME).scale + ' 650m²',
-      shortcut: 'S+54',
-      callback: () => scaleSelected(650)
-    },
-    G: {
-      title: '650+',
-      description: I18n.t(NAME).scale + ' 650+',
-      shortcut: 'S+55',
-      callback: () => scaleSelected(650, true)
-    },
-    H: {
       title: '<i class="fa fa-clone" aria-hidden="true"></i>',
       description: I18n.t(NAME).copy,
-      shortcut: 'S+56',
+      shortcut: 'S+54',
       callback: () => copyPlaces()
-    }
+    },
+    G: {
+      title: '<i class="fa fa-repeat" aria-hidden="true"></i>',
+      description: I18n.t(NAME).rotate,
+      shortcut: 'S+55',
+      callback: () => enablePolygonRotation()
+    },
+    H: {
+      title: '<i class="fa fa-expand" aria-hidden="true"></i>',
+      description: I18n.t(NAME).scale,
+      shortcut: 'S+56',
+      callback: () => enablePolygonResize()
+    },
+    I: {
+      title: '500m²',
+      description: I18n.t(NAME).scale + ' 500m²',
+      shortcut: 'S+57',
+      callback: () => scaleSelected(500)
+    },
+    J: {
+      title: '650m²',
+      description: I18n.t(NAME).scale + ' 650m²',
+      shortcut: 'S+58',
+      callback: () => scaleSelected(650)
+    },
+    K: {
+      title: '650+',
+      description: I18n.t(NAME).scale + ' 650+',
+      shortcut: 'S+59',
+      callback: () => scaleSelected(650, true)
+    },
+
   }
 
   const tabButtons = {
     A: {
-      title: '🔲',
+      title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
       description: I18n.t(NAME).orthogonalize,
       callback: () => orthogonalizeAll()
     },
@@ -157,11 +178,16 @@
       callback: () => simplifyAll(0.00001)
     },
     C: {
+      title: '3️⃣ 📐',
+      description: I18n.t(NAME).simplify,
+      callback: () => simplifyAll(0.00003)
+    },
+    D: {
       title: '5️⃣ 📐',
       description: I18n.t(NAME).simplify,
       callback: () => simplifyAll(0.00005)
     },
-    D: {
+    E: {
       title: '500+',
       description: I18n.t(NAME).scale + ' 500m²+',
       callback: () => scaleAll(500, true)
@@ -242,7 +268,7 @@
      * Handler for `place.wme` event
      * @param {jQuery.Event} event
      * @param {HTMLElement} element
-     * @param {SDK.Venue} model
+     * @param {Venue} model
      */
     onPlace (event, element, model) {
       if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
@@ -254,22 +280,21 @@
      * Handler for `venues.wme` event
      * @param {jQuery.Event} event
      * @param {HTMLElement} element
-     * @param {Array<Venue>} models
+     * @param {Venue[]} models
      * @return {Null}
      */
     onVenues (event, element, models) {
       models = models.filter(model => !model.isResidential
         && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }))
 
-      console.log(element)
       if (models.length > 0) {
         this.createPanel(event, element)
       }
     }
 
     /**
-     * @param {Array<String>} except
-     * @return {Array<Venue>} models
+     * @param {String[]} except
+     * @return {Venue[]} models
      */
     getAllPlaces(except = []) {
       let venues = this.getAllVenues(except)
@@ -277,7 +302,7 @@
     }
 
     /**
-     * @return {Array<Venue>} models
+     * @return {Venue[]} models
      */
     getSelectedPlaces() {
       let venues = this.getSelectedVenues()
@@ -361,7 +386,7 @@
 
   /**
    * Scale places to X m²
-   * @param {Array<Venue>} elements
+   * @param {Venue[]} elements
    * @param {Number} x square meters
    * @param {Boolean} orMore flag
    */
@@ -418,7 +443,7 @@
 
   /**
    * Orthogonalize place(s)
-   * @param {Array<Venue>} elements
+   * @param {Venue[]} elements
    */
   function orthogonalizeArray (elements) {
     console.groupCollapsed(
@@ -432,7 +457,7 @@
       try {
         let geometry = orthogonalizeGeometry(elements[i].geometry)
 
-        console.log(elements[i].geometry.coordinates[0], geometry.coordinates[0])
+        // console.log(elements[i].geometry.coordinates[0], geometry.coordinates[0])
 
         if (!compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
           E40Instance.wmeSDK.DataModel.Venues.updateVenue({
@@ -655,7 +680,7 @@
 
   /**
    * Smooth place(s)
-   * @param {Array<Venue>} elements
+   * @param {Venue[]} elements
    */
   function smoothArray (elements) {
     console.groupCollapsed(
@@ -710,7 +735,7 @@
 
   /**
    * Simplify place(s)
-   * @param {Array<Venue>} elements
+   * @param {Venue[]} elements
    * @param {Number} tolerance
    */
   function simplifyArray (elements, tolerance = 0.00001) {
@@ -767,6 +792,22 @@
       }
     }
     return true
+  }
+
+  /**
+   * wmeSDK.Map.enablePolygonResize()
+   */
+  function enablePolygonResize () {
+    console.log('%c' + NAME + ': %c enable resize')
+    E40Instance.wmeSDK.Map.enablePolygonResize()
+  }
+
+  /**
+   * wmeSDK.Map.enablePolygonRotation()
+   */
+  function enablePolygonRotation() {
+    console.log('%c' + NAME + ': %c enable rotation')
+    E40Instance.wmeSDK.Map.enablePolygonRotation()
   }
 
   /**
