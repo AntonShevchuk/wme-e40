@@ -821,14 +821,7 @@
       'color: dimgray; font-weight: normal'
     )
 
-    let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
-    let geometry = venue.geometry
-
-    // little move for new POI, uses geoJSON
-    for (let i = 0; i < geometry.coordinates[0].length; i++) {
-      geometry.coordinates[0][i][0] += 0.0001
-      geometry.coordinates[0][i][1] += 0.00005
-    }
+    let geometry = turf.transformTranslate(venue.geometry, 0.01, 0.005)
 
     let venueId = E40Instance.wmeSDK.DataModel.Venues.addVenue(
       {
@@ -838,13 +831,15 @@
     )
 
     let newVenue = {
-      isAdLocked: venue.isAdLocked,
-      isResidential: venue.isResidential,
+      // isAdLocked: venue.isAdLocked,
+      // isResidential: venue.isResidential,
       name: venue.name + ' (copy)',
       venueId: String(venueId),
     }
 
     E40Instance.wmeSDK.DataModel.Venues.updateVenue(newVenue)
+
+    let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
 
     if (address?.street?.id) {
       E40Instance.wmeSDK.DataModel.Venues.updateAddress(
