@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.8.1
+// @version      0.8.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -53,6 +53,8 @@
       simplify: 'Simplify',
       scale: 'Scale',
       rotate: 'Rotate',
+      circle: 'Circle',
+      square: 'Square',
       copy: 'Copy',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
@@ -66,6 +68,8 @@
       simplify: 'Спростити',
       scale: 'Масштабувати',
       rotate: 'Повернути',
+      circle: 'Круг',
+      square: 'Квадрат',
       copy: 'Копіювати',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     },
@@ -79,6 +83,8 @@
       simplify: 'Упростить',
       scale: 'Масштабировать',
       rotate: 'Повернуть',
+      circle: 'Круг',
+      square: 'Квадрат',
       copy: 'Копировать',
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     }
@@ -87,24 +93,29 @@
   WMEUI.addTranslation(NAME, TRANSLATION)
 
   const STYLE =
-    'button.waze-btn.e40 { margin: 0 4px 4px 0; padding: 2px; width: 45px; border: 1px solid #ddd; } ' +
-    'p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
-    'p.e40-warning { color: #f77 }' +
+    '.e40 .controls { display: grid; grid-template-columns: repeat(6, 44px); gap: 6px; padding: 0; }' +
+    '.e40 .button-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }' +
+    '.e40 button.e40 { width:44px;margin:0;padding:2px;display:flex;justify-content:center;border:1px solid #eee;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:nowrap;color:#333; flex-wrap: wrap; align-content: center;} ' +
+    '.e40 button.e40:hover { box-shadow:0 2px 8px 0 rgba(0,0,0,.1),inset 0 0 100px 100px rgba(255,255,255,.3) } ' +
+    '.e40 .button-toolbar button.e40 { min-height: 30px; line-height: 25px; margin-bottom: 16px; }' +
+    '#sidebar p.e40 { width: 100%; }' +
+    '#sidebar p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
+    '#sidebar p.e40-warning { color: #f77 }' +
     '#sidebar p.e40-blue { background-color:#0057B8;color:white;height:32px;text-align:center;line-height:32px;font-size:24px;margin:0; }' +
     '#sidebar p.e40-yellow { background-color:#FFDD00;color:black;height:32px;text-align:center;line-height:32px;font-size:24px;margin:0; }'
 
   WMEUI.addStyle(STYLE)
 
   // https://fontawesome.com/v4/icons/
-  const panelButtons = {
+  const placeButtons = {
     A: {
-      title: '<i class="fa fa-circle-o" aria-hidden="true"></i>',
+      title: '<i class="fa fa-circle-thin" aria-hidden="true"></i>',
       description: I18n.t(NAME).smooth,
       shortcut: 'S+49',
       callback: () => smooth()
     },
     B: {
-      title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
+      title: '<i class="fa fa-circle-thin" aria-hidden="true"></i>',
       description: I18n.t(NAME).orthogonalize,
       shortcut: 'S+50',
       callback: () => orthogonalize()
@@ -163,7 +174,33 @@
       shortcut: 'S+59',
       callback: () => scaleSelected(650, true)
     },
+  }
 
+  const pointButtons = {
+    M: {
+      title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> 500m²',
+      description: I18n.t(NAME).circle,
+      shortcut: null,
+      callback: () => circle(503, 32)
+    },
+    N: {
+      title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> 650m²',
+      description: I18n.t(NAME).circle,
+      shortcut: null,
+      callback: () => circle(651, 64)
+    },
+    O: {
+      title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 500m²',
+      description: I18n.t(NAME).square,
+      shortcut: null,
+      callback: () => square(500)
+    },
+    P: {
+      title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 650m²',
+      description: I18n.t(NAME).square,
+      shortcut: null,
+      callback: () => square(650)
+    },
   }
 
   const tabButtons = {
@@ -195,16 +232,18 @@
   }
 
   class E40 extends WMEBase {
-    constructor (name, tabButtons, panelButtons) {
+    constructor (name, tabButtons, placeButtons, pointButtons) {
       super(name)
 
       this.initHelper()
 
       this.initTab(tabButtons)
 
-      this.initPanel(panelButtons)
+      this.initPlacePanel(placeButtons)
 
-      this.initShortcuts(panelButtons)
+      this.initShortcuts(placeButtons)
+
+      this.initPointPanel(pointButtons)
     }
 
     initHelper() {
@@ -235,11 +274,18 @@
       tab.inject()
     }
 
-    initPanel (buttons) {
-      this.panel = this.helper.createPanel(
+    initPlacePanel (buttons) {
+      this.placePanel = this.helper.createPanel(
         I18n.t(this.name).title
       )
-      this.panel.addButtons(buttons)
+      this.placePanel.addButtons(buttons)
+    }
+
+    initPointPanel (buttons) {
+      this.pointPanel = this.helper.createPanel(
+        I18n.t(this.name).title
+      )
+      this.pointPanel.addButtons(buttons)
     }
 
     initShortcuts (buttons) {
@@ -272,7 +318,19 @@
      */
     onPlace (event, element, model) {
       if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
-        this.createPanel(event, element)
+        this.createPlacePanel(event, element)
+      }
+    }
+
+    /**
+     * Handler for `point.wme` event
+     * @param {jQuery.Event} event
+     * @param {HTMLElement} element
+     * @param {Venue} model
+     */
+    onPoint (event, element, model) {
+      if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+        this.createPointPanel(event, element)
       }
     }
 
@@ -288,7 +346,7 @@
         && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }))
 
       if (models.length > 0) {
-        this.createPanel(event, element)
+        this.createPlacePanel(event, element)
       }
     }
 
@@ -314,12 +372,26 @@
      * @param event
      * @param {HTMLElement} element
      */
-    createPanel (event, element) {
+    createPlacePanel (event, element) {
       if (element.querySelector('div.form-group.e40')) {
         return
       }
 
-      element.prepend(this.panel.html())
+      element.prepend(this.placePanel.html())
+      this.updateLabel()
+    }
+
+    /**
+     * Create panel with buttons
+     * @param event
+     * @param {HTMLElement} element
+     */
+    createPointPanel (event, element) {
+      if (element.querySelector('div.form-group.e40')) {
+        return
+      }
+
+      element.prepend(this.pointPanel.html())
       this.updateLabel()
     }
 
@@ -349,7 +421,7 @@
   let E40Instance
 
   $(document).on('bootstrap.wme', () => {
-    E40Instance = new E40(NAME, tabButtons, panelButtons)
+    E40Instance = new E40(NAME, tabButtons, placeButtons, pointButtons)
 
     E40Instance.wmeSDK.Events.trackDataModelEvents({ dataModelName: "venues" })
     E40Instance.wmeSDK.Events.on({
@@ -455,7 +527,8 @@
     // skip points
     for (let i = 0; i < elements.length; i++) {
       try {
-        let geometry = orthogonalizeGeometry(elements[i].geometry)
+        let geometry = simplifyPolygon(elements[i].geometry)
+            geometry = normalizeRightAngles(geometry)
 
         // console.log(elements[i].geometry.coordinates[0], geometry.coordinates[0])
 
@@ -474,197 +547,145 @@
   }
 
   /**
-   * Orthogonalizes a polygon's geometry by iteratively snapping angles
-   * to be closer to 90 or 180 degrees.
-   *
-   * This is a refactor of your original algorithm to use Turf.js for
-   * projections and data handling.
-   *
-   * @param {Feature<Polygon>|Polygon} geojsonPolygon The polygon to modify.
-   * @param {number} [threshold=12] Degrees within 90 or 180 to "snap".
-   * @returns {Feature<Polygon>} A new polygon with snapped vertices.
+   * Extracts the exterior coordinate ring from a Feature<Polygon> or Polygon geometry object.
+   * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
+   * @returns {Array<Array<number>> | null} The exterior ring, or null on error.
    */
-  function orthogonalizeGeometry(geojsonPolygon, threshold = 12) {
-
-    // --- Threshold setup (from original) ---
-    const nomThreshold = threshold; // degrees within right or straight to alter
-    const lowerThreshold = Math.cos((90 - nomThreshold) * Math.PI / 180);
-    const upperThreshold = Math.cos(nomThreshold * Math.PI / 180);
-
-    // --- Vector Math Helpers (unchanged from original) ---
-    function subtractPoints(a, b) {
-      return { x: a.x - b.x, y: a.y - b.y };
+  function getExteriorRing(geojsonObject) {
+    if (geojsonObject.type === "Feature" && geojsonObject.geometry && geojsonObject.geometry.type === "Polygon") {
+      return geojsonObject.geometry.coordinates[0];
+    } else if (geojsonObject.type === "Polygon") {
+      return geojsonObject.coordinates[0];
     }
-    function addPoints(a, b) {
-      return { x: a.x + b.x, y: a.y + b.y };
-    }
-    function euclideanDistance(a, b) {
-      let x = a.x - b.x, y = a.y - b.y;
-      return Math.sqrt((x * x) + (y * y));
-    }
-    function normalizePoint(point, scale) {
-      let vector = { x: 0, y: 0 };
-      let length = Math.sqrt(point.x * point.x + point.y * point.y);
-      if (length !== 0) {
-        vector.x = point.x / length;
-        vector.y = point.y / length;
-      }
-      vector.x *= scale;
-      vector.y *= scale;
-      return vector;
-    }
+    console.error("Invalid GeoJSON input: simplifyPolygon accepts Feature<Polygon> or Polygon geometry object only.");
+    return null;
+  }
 
-    // --- Algorithm Helpers (unchanged from original) ---
-    function filterDotProduct(dotp) {
-      if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold) {
-        return dotp;
-      }
-      return 0;
-    }
 
-    function normalizedDotProduct(i, points) {
-      let a = points[(i - 1 + points.length) % points.length],
-        b = points[i],
-        c = points[(i + 1) % points.length],
-        p = subtractPoints(a, b),
-        q = subtractPoints(c, b);
+  /**
+   * Iteratively simplifies a GeoJSON Polygon ring by removing points that form
+   * an angle between 175° and 180° with their neighbors.
+   * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
+   * @returns {object} The simplified GeoJSON Polygon geometry object (type: "Polygon").
+   */
+  function simplifyPolygon(geojsonObject) {
+    let ring = getExteriorRing(geojsonObject);
+    if (!ring) return { type: "Polygon", coordinates: [[]] };
 
-      p = normalizePoint(p, 1.0);
-      q = normalizePoint(q, 1.0);
+    let points = [...ring];
+    const MIN_UNIQUE_POINTS = 4; // A, B, C, A (length 4) means 3 unique points (a triangle)
+    const MIN_ANGLE = 175.0;
+    const MAX_ANGLE = 185.0;
+    let pointsRemoved = 0;
+    let iteration = 0;
 
-      return p.x * q.x + p.y * q.y;
-    }
+    console.log("--- Starting Polygon Simplification (175° to 185° removal) ---");
 
-    function squareness(points) {
-      return points.reduce(function (sum, val, i, array) {
-        let dotp = normalizedDotProduct(i, array);
-        dotp = filterDotProduct(dotp);
-        return sum + 2.0 * Math.min(Math.abs(dotp - 1.0), Math.min(Math.abs(dotp), Math.abs(dotp + 1)));
-      }, 0);
-    }
+    while (points.length > MIN_UNIQUE_POINTS) {
+      iteration++;
+      let pointIndexToRemove = -1;
 
-    // --- Core iterative function, rewritten to use Turf ---
-    function Orthogonalize(polygon) {
-      // 1. Project to Mercator (EPSG:3857) to work with planar {x, y} coordinates
-      const projectedPoly = turf.toMercator(polygon);
-      const coords = turf.getCoords(projectedPoly)[0];
+      // Check points from index 1 up to length - 2.
+      for (let i = 1; i < points.length - 1; i++) {
+        const angle = GeoUtils.findAngle(points[i - 1], points[i], points[i + 1]);
 
-      // 2. Convert to algorithm's {x, y} format, remove closing point
-      let points = coords.slice(0, -1).map(c => ({ x: c[0], y: c[1] }));
-
-      let corner = { i: 0, dotp: 1 };
-      const epsilon = 1e-4;
-      let i, j, score, motions;
-
-      // This helper must be in this scope to access `corner`
-      function calcMotion(b, i, array) {
-        let a = array[(i - 1 + array.length) % array.length],
-          c = array[(i + 1) % array.length],
-          p = subtractPoints(a, b),
-          q = subtractPoints(c, b),
-          scale, dotp;
-
-        scale = 2 * Math.min(euclideanDistance(p, { x: 0, y: 0 }), euclideanDistance(q, { x: 0, y: 0 }));
-        p = normalizePoint(p, 1.0);
-        q = normalizePoint(q, 1.0);
-
-        dotp = filterDotProduct(p.x * q.x + p.y * q.y);
-
-        // Nasty hack from original
-        if (array.length > 3) {
-          if (dotp < -0.707106781186547) {
-            dotp += 1.0;
-          }
-        } else if (dotp && Math.abs(dotp) < corner.dotp) {
-          corner.i = i;
-          corner.dotp = Math.abs(dotp);
-        }
-        return normalizePoint(addPoints(p, q), 0.1 * dotp * scale);
-      }
-
-      // 3. Run the iterative algorithm
-
-      // --- Handle 3-point case (Triangle) ---
-      // (Original checks nodes.length === 4, which is 3 unique points)
-      if (points.length === 3) {
-        for (i = 0; i < 1000; i++) {
-          motions = points.map(calcMotion);
-
-          // Only move the "sharpest" corner
-          let tmp = addPoints(points[corner.i], motions[corner.i]);
-          points[corner.i].x = tmp.x;
-          points[corner.i].y = tmp.y;
-
-          score = corner.dotp;
-          if (score < epsilon) {
-            break;
-          }
+        if (angle >= MIN_ANGLE && angle <= MAX_ANGLE) {
+          pointIndexToRemove = i;
+          console.log(`[Iter ${iteration}] Found point to remove at index ${i} (${points[i].map(c => c.toFixed(2)).join(', ')}). Angle: ${angle.toFixed(4)}°`);
+          break; // Remove only one point per iteration
         }
       }
-      // --- Handle N-point case ---
-      else {
-        let best;
-        score = Infinity;
 
-        for (i = 0; i < 1000; i++) {
-          motions = points.map(calcMotion);
-          for (j = 0; j < motions.length; j++) {
-            let tmp = addPoints(points[j], motions[j]);
-            points[j].x = tmp.x;
-            points[j].y = tmp.y;
-          }
+      if (pointIndexToRemove !== -1) {
+        points.splice(pointIndexToRemove, 1);
+        pointsRemoved++;
 
-          let newScore = squareness(points);
-          if (newScore < score) {
-            best = points.map(p => ({ ...p })); // Store a copy of the best points
-            score = newScore;
-          }
-          if (score < epsilon) {
-            break;
-          }
-        }
-        points = best;
-      }
-
-      // 4. Remove collinear points (original's final loop)
-      let finalCoords = [];
-      if (points) {
-        for (i = 0; i < points.length; i++) {
-          let dotp = normalizedDotProduct(i, points);
-          // if angle is not ~180 degrees, keep the point
-          if (dotp > -1 + epsilon) {
-            finalCoords.push([points[i].x, points[i].y]);
-          }
-        }
+        // Update the closure point
+        points[points.length - 1] = points[0];
+        console.log(`[Iter ${iteration}] Point removed. New length: ${points.length}. Unique points remaining: ${points.length - 1}.`);
       } else {
-        // Algorithm failed or points was undefined
-        return polygon;
+        console.log(`[Iter ${iteration}] No point found in the angle range [${MIN_ANGLE}°, ${MAX_ANGLE}°]. Stopping.`);
+        break;
       }
-
-      // 5. Convert back to GeoJSON
-      if (finalCoords.length < 3) {
-        console.warn("Orthogonalization failed, returning original polygon.");
-        return polygon; // Algorithm failed
-      }
-
-      finalCoords.push(finalCoords[0]); // Close the polygon ring
-
-      // Create a new polygon from the modified (and still projected) coords
-      const newProjectedPoly = turf.polygon([finalCoords]);
-
-      // Project back to WGS84 (lat/lon)
-      const newGeoJsonPoly = turf.toWgs84(newProjectedPoly);
-
-      // Preserve properties from the original
-      newGeoJsonPoly.properties = turf.getType(geojsonPolygon) === 'Feature' ?
-        geojsonPolygon.properties : {};
-
-      return newGeoJsonPoly;
     }
 
-    // --- Entry point of the main function ---
-    let polygon = Orthogonalize(geojsonPolygon);
-    return polygon.geometry
+    if (points.length <= MIN_UNIQUE_POINTS) {
+      console.log(`Reached minimum size of 3 unique points (array length ${points.length}). Stopping.`);
+    }
+
+    console.log(`--- Simplification Finished. Total points removed: ${pointsRemoved} ---`);
+
+    return {
+      type: "Polygon",
+      coordinates: [points]
+    };
+  }
+
+  /**
+   * Moves vertices (P_curr) that form a near-90° angle (85-89.9 or 90.1-95)
+   * to a new position (P'_curr) that forms exactly 90°.
+   * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
+   * @returns {object} The angle-normalized GeoJSON Polygon geometry object.
+   */
+  function normalizeRightAngles(geojsonObject) {
+    let ring = getExteriorRing(geojsonObject);
+    if (!ring) return { type: "Polygon", coordinates: [[]] };
+
+    let points = JSON.parse(JSON.stringify(ring)); // Deep copy to modify
+    let pointsAdjusted = 0;
+    let totalIterations = 0;
+    let changedInPass = true;
+
+    console.log("--- Starting Angle Normalization (Near 90° adjustment) ---");
+
+    // Iterate until no points are adjusted in a full pass
+    while (changedInPass && totalIterations < 10) { // Safety limit for iterations
+      changedInPass = false;
+      totalIterations++;
+
+      console.log(`[Iter ${totalIterations}] Start`)
+
+      // Check points from index 1 up to length - 2.
+      for (let i = 1; i < points.length - 1; i++) {
+        const pPrev = points[i - 1];
+        const pCurr = points[i];
+        const pNext = points[i + 1];
+
+        const angle = GeoUtils.findAngle(pPrev, pCurr, pNext);
+
+        console.log(`[Point ${i}] Angle:`, angle.toFixed(4))
+
+        // Check if the angle is in the target normalization ranges
+        const inRange1 = angle >= 75.0 && angle <= 89.5;
+        const inRange2 = angle >= 90.5 && angle <= 105.0;
+
+
+        if (inRange1 || inRange2) {
+
+          // Round coordinates to 6 decimal places for GeoJSON compatibility
+          points[i] = GeoUtils.findRightAngleIntersection(pPrev, pCurr, pNext)
+
+          let new_angle = GeoUtils.findAngle(pPrev, points[i], pNext);
+
+          pointsAdjusted++;
+          changedInPass = true;
+          console.log(`[Point ${i}] Angle ${angle.toFixed(4)}° adjusted to ${new_angle.toFixed(4)}°.`);
+
+          // The loop continues in the same pass. If points[i] is adjusted,
+          // it affects the angle calculations for P_{i-1} and P_{i+1} in the next passes.
+        }
+      }
+    }
+
+    // Ensure the closure point is updated after all adjustments
+    points[points.length - 1] = points[0];
+
+    console.log(`--- Normalization Finished. Total points adjusted: ${pointsAdjusted} in ${totalIterations} passes. ---`);
+
+    return {
+      type: "Polygon",
+      coordinates: [points]
+    };
   }
 
   /**
@@ -795,6 +816,167 @@
   }
 
   /**
+   * Transform the Point to circle place
+   * @param {Number} area in square meters
+   * @param {Number} steps
+   */
+  function circle (area, steps = 64) {
+    let place = E40Instance.getSelectedVenue()
+    let geometry = place.geometry
+
+    if (geometry.type !== 'Point') {
+      geometry = turf.centroid(geometry).geometry
+    }
+
+    let circle = createCirclePolygon(geometry, area, steps)
+
+    E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+      venueId: place.id, geometry: circle.geometry
+    })
+
+    E40Instance.wmeSDK.Editing.clearSelection()
+
+    setTimeout(() =>
+      E40Instance.wmeSDK.Editing.setSelection({ selection: {
+        ids:[ String(place.id) ],
+        objectType: 'venue'
+      }}), 100)
+  }
+
+  /**
+   * Creates a GeoJSON Polygon representing a circle centered at a given point
+   * with a radius calculated from a desired area in square meters.
+   *
+   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
+   * @param {number} areaSqMeters - The desired area of the circle in square meters (m²).
+   * @param {number} [steps=64] - The number of steps/segments to create the circle (higher = smoother).
+   * @returns {object} A GeoJSON Polygon Feature representing the circle.
+   */
+  function createCirclePolygon(centerPoint, areaSqMeters, steps = 64) {
+    if (centerPoint.type !== 'Point') {
+      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
+    }
+    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
+      throw new Error('Invalid areaSqMeters: Must be a positive number.');
+    }
+
+    // 1. Calculate the required radius (R) from the Area (A)
+    // The formula for the area of a circle is: A = π * R²
+    // Rearranging for the radius: R = sqrt(A / π)
+    const radiusMeters = Math.sqrt(areaSqMeters / Math.PI);
+
+    // 2. Convert the radius from meters to kilometers (Turf.js default unit)
+    const radiusKilometers = radiusMeters / 1000;
+
+    // 3. Use turf.circle to create the polygon
+    return turf.circle(centerPoint, radiusKilometers, {
+      steps: steps,
+      units: 'kilometers' // Explicitly set units, though it's the default
+    });
+  }
+
+  /**
+   * Transform the Point to square place
+   * @param {Number} area in square meters
+   */
+  function square (area) {
+    let place = E40Instance.getSelectedVenue()
+
+    let geometry = place.geometry
+
+    if (geometry.type !== 'Point') {
+      geometry = turf.centroid(geometry).geometry
+    }
+
+    let square = createSquarePolygon(geometry, area)
+
+    E40Instance.wmeSDK.DataModel.Venues.updateVenue({
+      venueId: place.id, geometry: square.geometry
+    })
+
+    E40Instance.wmeSDK.Editing.clearSelection()
+
+    setTimeout(() =>
+      E40Instance.wmeSDK.Editing.setSelection({ selection: {
+          ids:[ String(place.id) ],
+          objectType: 'venue'
+        }}), 100)
+  }
+
+  /**
+   * Creates a GeoJSON Polygon representing a square centered at a given point
+   * with a side length calculated from a desired area in square meters.
+   *
+   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
+   * @param {number} areaSqMeters - The desired area of the square in square meters (m²).
+   * @returns {object} A GeoJSON Polygon Feature representing the square.
+   */
+  function createSquarePolygon(centerPoint, areaSqMeters) {
+    if (centerPoint.type !== 'Point') {
+      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
+    }
+    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
+      throw new Error('Invalid areaSqMeters: Must be a positive number.');
+    }
+
+    // 1. Calculate the required Side Length (S) from the Area (A)
+    // The formula for the area of a square is: A = S²
+    // Rearranging for the side length: S = sqrt(A)
+    const sideLengthMeters = Math.sqrt(areaSqMeters);
+
+    // 2. Calculate the distance from the center to any edge of the square
+    // This is half the side length: HalfSide = S / 2
+    const halfSideMeters = sideLengthMeters / 2;
+
+    // 3. Since Turf.js typically handles distances in kilometers, convert the half-side.
+    const halfSideKilometers = halfSideMeters / 1000;
+
+    // 4. Calculate the bounding box (bbox) coordinates
+    // We can use a combination of `turf/destination` or, more simply for a centered square,
+    // manually calculate the offsets using Turf's distance handling for min/max coordinates.
+    // However, a simpler approach is to calculate the bounding box for the square's corners.
+
+    // A centered square's extent is defined by its center coordinates +/- (half-side in distance units).
+    // The `turf/bbox` function is often used to get the extent of a feature, but here we need
+    // to calculate the BBOX based on a distance from the center point.
+
+    // Calculate the geographic bounding box [west, south, east, north]
+    // Due to the complexities of Earth's curvature, calculating precise coordinates
+    // by simply adding/subtracting distances (especially for large squares) is difficult.
+    // A robust, though slightly over-engineered, way is to use the `turf/buffer` function
+    // to approximate the square's corners.
+
+    // A simpler approach for small, localized areas is to calculate the min/max coordinates
+    // by using the `turf/transformScale` on a unit square. However, this is more complex.
+
+    // A common and practical approximation for *small* areas:
+    const [lon, lat] = centerPoint.coordinates;
+
+    // For simplicity, we'll use an approximation based on latitude/longitude differences.
+    // WARNING: This approximation is only accurate for very small areas or near the equator.
+    // For a highly accurate square, you would use geodesic distance functions (like turf/destination)
+    // to find the four corners based on the center point and the half-side distance.
+
+    // --- Robust Geodesic Calculation for the Four Corners ---
+    const options = { units: 'kilometers' };
+
+    // 45 degrees: Northeast, 135 degrees: Northwest, 225 degrees: Southwest, 315 degrees: Southeast
+    const cornerNE = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 45, options);
+    const cornerSW = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 225, options);
+
+    const minLon = cornerSW.geometry.coordinates[0];
+    const minLat = cornerSW.geometry.coordinates[1];
+    const maxLon = cornerNE.geometry.coordinates[0];
+    const maxLat = cornerNE.geometry.coordinates[1];
+
+    // The BBOX format is [minX, minY, maxX, maxY] => [west, south, east, north]
+    const calculatedBbox = [minLon, minLat, maxLon, maxLat];
+
+    // 5. Use turf.bboxPolygon to create the square polygon from the bounding box
+    return turf.bboxPolygon(calculatedBbox);
+  }
+
+  /**
    * wmeSDK.Map.enablePolygonResize()
    */
   function enablePolygonResize () {
@@ -848,6 +1030,273 @@
           streetId: address.street.id,
         }
       )
+    }
+  }
+  /**
+   * A utility class for spherical geometry (geodesy).
+   * Assumes points are [longitude, latitude] in degrees.
+   */
+  class GeoUtils {
+    /**
+     * @param {number} degrees
+     * @return {number} radians
+     * @private
+     */
+    static _toRadians(degrees) {
+      return degrees * (Math.PI / 180);
+    }
+
+    /**
+     * @param {number} radians
+     * @return {number} degrees
+     * @private
+     */
+    static _toDegrees(radians) {
+      return radians * (180 / Math.PI);
+    }
+
+    /**
+     * Normalizes an angle to the range -180 to +180 degrees.
+     * @param {number} degrees
+     * @return {number} degrees
+     */
+    static _normalizeAngle(degrees) {
+      return (degrees + 540) % 360 - 180;
+    }
+
+    /**
+     * Calculates the initial bearing from pA to pB.
+     * @param {[number,number]} pA - [lon, lat] of start point.
+     * @param {[number,number]} pB - [lon, lat] of end point.
+     * @returns {number} Initial bearing in degrees (0-360).
+     */
+    static getBearing(pA, pB) {
+      const latA = GeoUtils._toRadians(pA[1]);
+      const lonA = GeoUtils._toRadians(pA[0]);
+      const latB = GeoUtils._toRadians(pB[1]);
+      const lonB = GeoUtils._toRadians(pB[0]);
+
+      const deltaLon = lonB - lonA;
+
+      const y = Math.sin(deltaLon) * Math.cos(latB);
+      const x = Math.cos(latA) * Math.sin(latB) -
+        Math.sin(latA) * Math.cos(latB) * Math.cos(deltaLon);
+
+      const bearingRad = Math.atan2(y, x);
+
+      // Convert from -180/+180 to 0-360
+      return (GeoUtils._toDegrees(bearingRad) + 360) % 360;
+    }
+
+    /**
+     * Calculates the interior angle at vertex p2.
+     * @param {[number,number]} p1
+     * @param {[number,number]} p2
+     * @param {[number,number]} p3
+     */
+    static findAngle(p1, p2, p3) {
+      const bearing21 = GeoUtils.getBearing(p2, p1);
+      const bearing23 = GeoUtils.getBearing(p2, p3);
+      let angle = Math.abs(bearing21 - bearing23);
+
+      if (angle > 180) {
+        angle = 360 - angle;
+      }
+      return angle;
+    }
+
+    /**
+     * Calculate the approximate distance between two coordinates (lat/lon)
+     *
+     * @param {[number,number]} pA - [lon, lat] of start point.
+     * @param {[number,number]} pB - [lon, lat] of end point.
+     * @return {number} The distance in meters.
+     */
+    static getDistance (pA, pB) {
+      return GeoUtils.getAngularDistance(pA, pB) * 6371000
+    }
+
+    /**
+     * Calculates the angular distance between two points using the Haversine formula.
+     * @param {[number,number]} pA - [lon, lat] of start point.
+     * @param {[number,number]} pB - [lon, lat] of end point.
+     * @returns {number} The angular distance in radians.
+     */
+    static getAngularDistance(pA, pB) {
+      const latA = GeoUtils._toRadians(pA[1]);
+      const lonA = GeoUtils._toRadians(pA[0]);
+      const latB = GeoUtils._toRadians(pB[1]);
+      const lonB = GeoUtils._toRadians(pB[0]);
+
+      const deltaLat = latB - latA;
+      const deltaLon = lonB - lonA;
+
+      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+        Math.cos(latA) * Math.cos(latB) *
+        Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+      // c is the angular distance in radians
+      return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    /**
+     * Calculates the destination point given a start point, bearing, and distance.
+     * @param {[number,number]} startPoint - [lon, lat] of start point.
+     * @param {number} bearing - Bearing in degrees (0-360).
+     * @param {number} distanceRad - Angular distance in radians.
+     * @returns {number[]} The destination point [lon, lat] in degrees.
+     */
+    static getDestination(startPoint, bearing, distanceRad) {
+      const lat1 = GeoUtils._toRadians(startPoint[1]);
+      const lon1 = GeoUtils._toRadians(startPoint[0]);
+      const brng = GeoUtils._toRadians(bearing);
+      const d = distanceRad;
+
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(d) +
+        Math.cos(lat1) * Math.sin(d) * Math.cos(brng)
+      );
+
+      const lon2 = lon1 + Math.atan2(
+        Math.sin(brng) * Math.sin(d) * Math.cos(lat1),
+        Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+      );
+
+      // Normalize longitude to -180 to +180
+      const lon2Deg = GeoUtils._toDegrees(lon2);
+      const lat2Deg = GeoUtils._toDegrees(lat2);
+
+      return [(lon2Deg + 540) % 360 - 180, lat2Deg];
+    }
+
+    /**
+     * Finds the intersection of two great-circle paths.
+     * Path 1: Defined by p1 and p2.
+     * Path 2: Defined by p3 and an internal angle at p3.
+     *
+     * @param {[number,number]} p1 - First point of Line 1 [lon, lat].
+     * @param {[number,number]} p2 - Second point of Line 1 [lon, lat].
+     * @param {[number,number]} p3 - Start point of Line 2 [lon, lat].
+     * @param {number} angle - The SIGNED internal angle at p2 (in degrees).
+     * @returns {[number,number] | null} The intersection point [lon, lat], or null if lines are parallel.
+     */
+    static findIntersection(p1, p2, p3, angle) {
+      // 1. Define the triangle P1-P3-X (A-C-B)
+      //    A = p1, C = p3, B = X (intersection)
+
+      // 2. Find known bearings
+      const brng1_2 = GeoUtils.getBearing(p1, p2); // Bearing of Line 1
+      const brng1_3 = GeoUtils.getBearing(p1, p3); // Bearing from p1 to p3
+
+      // 3. Calculate internal angles A (at p1) and C (at p3)
+      const angleA = GeoUtils._normalizeAngle(brng1_2 - brng1_3);
+      const angleB = angle
+      const angleC = GeoUtils._normalizeAngle(180 - angleA - angleB)
+
+      // 4. Calculate known side b (angular distance p1-p3)
+      const dist_b = GeoUtils.getAngularDistance(p1, p3); // in radians
+
+      // Check for parallel lines
+      if (Math.sin(GeoUtils._toRadians(angleA)) === 0 && Math.sin(GeoUtils._toRadians(angleC)) === 0) {
+        return null; // Collinear
+      }
+
+      // 5. Find internal angle B (at intersection X) using Law of Cosines for angles
+      const angleA_rad = GeoUtils._toRadians(angleA);
+      const angleB_rad = GeoUtils._toRadians(angleB);
+      const angleC_rad = GeoUtils._toRadians(angleC);
+
+      // 5a. Find internal angle B (at intersection X) using Law of Cosines for angles
+      let cos_B = -Math.cos(angleA_rad) * Math.cos(angleC_rad) +
+        Math.sin(angleA_rad) * Math.sin(angleC_rad) * Math.cos(dist_b);
+      cos_B = Math.max(-1, Math.min(1, cos_B)); // Clamp
+      // angleB_rad = Math.acos(cos_B);
+
+      // Check for parallel/collinear lines (angleB is 0 or 180)
+      if (Math.abs(Math.sin(angleB_rad)) < 1e-9) {
+        return null;
+      }
+
+      // 5b. Find side c (distance p1-X) using Law of Cosines (NOT Sines)
+      //     cos(c) = (cos(C) + cos(A)cos(B)) / (sin(A)sin(B))
+      let cos_c = (Math.cos(angleC_rad) + Math.cos(angleA_rad) * cos_B) /
+        (Math.sin(angleA_rad) * Math.sin(angleB_rad));
+
+      cos_c = Math.max(-1, Math.min(1, cos_c)); // Clamp
+      const dist_c = Math.acos(cos_c); // This is dist_p1_X in radians
+
+      // 6. Calculate the final intersection point X
+      //    We have start (p1), bearing (brng1_X), and distance (dist_c)
+      return GeoUtils.getDestination(p1, brng1_2, dist_c);
+    }
+
+    /**
+     * Calculates the coordinates of point D in a right-angled spherical triangle ADC,
+     * using Angle A and the hypotenuse AC.
+     * Triangle ADC has a right angle at D (angle D = 90 deg),
+     * and angle A and side AC are preserved from the original triangle ABC.
+     *
+     * @param {[number,number]} pA - [lon, lat] of point A.
+     * @param {[number,number]} pB - [lon, lat] of point B (used to calculate angle A).
+     * @param {[number,number]} pC - [lon, lat] of point C.
+     * @returns {[number,number]} The coordinates [lon, lat] of point D.
+     */
+    static findRightAngleIntersection(pA, pB, pC) {
+      // 1. Calculate the required angle at A (angle A_ABC)
+      // The angle at A in triangle ABC is the interior angle at pA.
+      const angleA_deg = GeoUtils.findAngle(pB, pA, pC);
+      const angleA_rad = GeoUtils._toRadians(angleA_deg);
+
+      // 2. Calculate the common side AC (side 'b' in spherical triangle ADC)
+      // This is the hypotenuse of the right triangle ADC.
+      const distAC_rad = GeoUtils.getAngularDistance(pA, pC);
+
+      // 3. Use Napier's Rules to find side 'c' (distance AD)
+      // In right triangle ADC: D = 90 deg, angle A is known, hypotenuse b (AC) is known.
+      // We want to find side 'c' (distance AD), which is adjacent to angle A.
+      // The correct spherical formula relating adjacent side 'c', hypotenuse 'b', and angle 'A' is:
+      // cos(A) = tan(c) / tan(b)
+
+      // Therefore, tan(c) = cos(A) * tan(b)
+      // Where:
+      // c = distAD_rad (unknown side)
+      // b = distAC_rad (hypotenuse)
+      // A = angleA_rad (known angle)
+
+      const tan_c = Math.cos(angleA_rad) * Math.tan(distAC_rad);
+      const distAD_rad = Math.atan(tan_c);
+
+      // 4. Determine the bearing from A to D
+      // The bearing from A to D is the bearing from A to C, adjusted by the angle A.
+      const bearingAC_deg = GeoUtils.getBearing(pA, pC);
+
+      // The bearing A->D must be rotated from A->C such that D forms a right angle with CD.
+      // This requires D to be along the great circle arc that is perpendicular to C->D.
+
+      // Bearing from A to B
+      const bearingAB_deg = GeoUtils.getBearing(pA, pB);
+
+      // Calculate the signed difference: bearingAC - bearingAB
+      const angleCAB_raw_diff = GeoUtils._normalizeAngle(bearingAC_deg - bearingAB_deg);
+
+      let bearingAD_deg;
+
+      // The point D is found by rotating the bearing A->C away from B, by the interior angle A.
+      if (angleCAB_raw_diff >= 0) {
+        // B is counter-clockwise from AC (left side)
+        // D needs to be on the other side of AC
+        bearingAD_deg = GeoUtils._normalizeAngle(bearingAC_deg - angleA_deg);
+      } else {
+        // B is clockwise from AC (right side)
+        // D needs to be on the other side of AC
+        bearingAD_deg = GeoUtils._normalizeAngle(bearingAC_deg + angleA_deg);
+      }
+
+      // 5. Calculate the destination point D
+      // Start point: pA
+      // Bearing: bearingAD_deg
+      // Distance: distAD_rad
+      return GeoUtils.getDestination(pA, bearingAD_deg, distAD_rad);
     }
   }
 
