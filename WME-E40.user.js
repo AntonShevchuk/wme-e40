@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.8.2
+// @version      0.8.3
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -95,9 +95,10 @@
   const STYLE =
     '.e40 .controls { display: grid; grid-template-columns: repeat(6, 44px); gap: 6px; padding: 0; }' +
     '.e40 .button-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }' +
+    '.e40 .button-toolbar button.e40 { min-height: 30px; line-height: 25px; margin-bottom: 16px; }' +
     '.e40 button.e40 { width:44px;margin:0;padding:2px;display:flex;justify-content:center;border:1px solid #eee;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:nowrap;color:#333; flex-wrap: wrap; align-content: center;} ' +
     '.e40 button.e40:hover { box-shadow:0 2px 8px 0 rgba(0,0,0,.1),inset 0 0 100px 100px rgba(255,255,255,.3) } ' +
-    '.e40 .button-toolbar button.e40 { min-height: 30px; line-height: 25px; margin-bottom: 16px; }' +
+    '.e40 button.e40-M, .e40 button.e40-N, .e40 button.e40-O, .e40 button.e40-P, .e40 button.e40-R, .e40 button.e40-S { min-height: 50px; } ' +
     '#sidebar p.e40 { width: 100%; }' +
     '#sidebar p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
     '#sidebar p.e40-warning { color: #f77 }' +
@@ -115,7 +116,7 @@
       callback: () => smooth()
     },
     B: {
-      title: '<i class="fa fa-circle-thin" aria-hidden="true"></i>',
+      title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
       description: I18n.t(NAME).orthogonalize,
       shortcut: 'S+50',
       callback: () => orthogonalize()
@@ -123,56 +124,56 @@
     C: {
       title: '1️⃣ 📐',
       description: I18n.t(NAME).simplify + ' (tolerance = 0.00001)',
-      shortcut: 'S+51',
+      shortcut: null,
       callback: () => simplify(0.00001)
     },
     D: {
       title: '3️⃣ 📐',
       description: I18n.t(NAME).simplify + ' (tolerance = 0.00003)',
-      shortcut: 'S+52',
+      shortcut: null,
       callback: () => simplify(0.00003)
     },
     E: {
       title: '5️⃣ 📐',
       description: I18n.t(NAME).simplify + ' (tolerance = 0.00005)',
-      shortcut: 'S+53',
+      shortcut: null,
       callback: () => simplify(0.00005)
     },
     F: {
       title: '<i class="fa fa-clone" aria-hidden="true"></i>',
       description: I18n.t(NAME).copy,
-      shortcut: 'S+54',
+      shortcut: null,
       callback: () => copyPlaces()
     },
     G: {
       title: '<i class="fa fa-repeat" aria-hidden="true"></i>',
       description: I18n.t(NAME).rotate,
-      shortcut: 'S+55',
+      shortcut: 'S+51',
       callback: () => enablePolygonRotation()
     },
     H: {
       title: '<i class="fa fa-expand" aria-hidden="true"></i>',
       description: I18n.t(NAME).scale,
-      shortcut: 'S+56',
+      shortcut: 'S+52',
       callback: () => enablePolygonResize()
     },
     I: {
       title: '500m²',
       description: I18n.t(NAME).scale + ' 500m²',
-      shortcut: 'S+57',
-      callback: () => scaleSelected(500)
+      shortcut: 'S+53',
+      callback: () => scale(500)
     },
     J: {
       title: '650m²',
       description: I18n.t(NAME).scale + ' 650m²',
-      shortcut: 'S+58',
-      callback: () => scaleSelected(650)
+      shortcut: 'S+54',
+      callback: () => scale(650)
     },
     K: {
       title: '650+',
       description: I18n.t(NAME).scale + ' 650+',
-      shortcut: 'S+59',
-      callback: () => scaleSelected(650, true)
+      shortcut: 'S+55',
+      callback: () => scale(650, true)
     },
   }
 
@@ -190,16 +191,28 @@
       callback: () => circle(651, 64)
     },
     O: {
+      title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> R=20m',
+      description: I18n.t(NAME).circle,
+      shortcut: null,
+      callback: () => circle(1256.64, 64)
+    },
+    P: {
       title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 500m²',
       description: I18n.t(NAME).square,
       shortcut: null,
       callback: () => square(500)
     },
-    P: {
+    R: {
       title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 650m²',
       description: I18n.t(NAME).square,
       shortcut: null,
       callback: () => square(650)
+    },
+    S: {
+      title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 1000m²',
+      description: I18n.t(NAME).square,
+      shortcut: null,
+      callback: () => square(1000)
     },
   }
 
@@ -292,7 +305,7 @@
       for (let btn in buttons) {
         if (buttons.hasOwnProperty(btn)) {
           let button = buttons[btn]
-          if (button.shortcut) {
+          if (button.hasOwnProperty('shortcut')) {
             let shortcut = {
               callback: button.callback,
               description: button.description,
@@ -300,7 +313,7 @@
               shortcutKeys: button.shortcut,
             };
 
-            if (this.wmeSDK.Shortcuts.areShortcutKeysInUse({ shortcutKeys: shortcut.shortcutKeys })) {
+            if (shortcut.shortcutKeys && this.wmeSDK.Shortcuts.areShortcutKeysInUse({ shortcutKeys: shortcut.shortcutKeys })) {
               this.log('Shortcut already in use')
               shortcut.shortcutKeys = null
             }
@@ -346,7 +359,11 @@
         && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }))
 
       if (models.length > 0) {
-        this.createPlacePanel(event, element)
+        if (models[0].geometry.type === 'Polygon') {
+          this.createPlacePanel(event, element)
+        } else {
+          this.createPointPanel(event, element)
+        }
       }
     }
 
@@ -373,11 +390,11 @@
      * @param {HTMLElement} element
      */
     createPlacePanel (event, element) {
-      if (element.querySelector('div.form-group.e40')) {
+      if (element?.querySelector('div.form-group.e40')) {
         return
       }
 
-      element.prepend(this.placePanel.html())
+      element?.prepend(this.placePanel.html())
       this.updateLabel()
     }
 
@@ -387,26 +404,47 @@
      * @param {HTMLElement} element
      */
     createPointPanel (event, element) {
-      if (element.querySelector('div.form-group.e40')) {
+      if (element?.querySelector('div.form-group.e40')) {
         return
       }
 
-      element.prepend(this.pointPanel.html())
+      element?.prepend(this.pointPanel.html())
       this.updateLabel()
+    }
+
+    /**
+     * Refresh the panel if something was changed
+     */
+    refreshPanel () {
+      let venue = this.getSelectedVenue()
+
+      let element = document.getElementById('venue-edit-general')
+          element?.querySelector('div.form-group.e40')?.remove()
+
+      if (venue) {
+        if (venue.geometry.type === 'Polygon') {
+          this.createPlacePanel(null, element)
+        } else {
+          this.createPointPanel(null, element)
+        }
+      }
     }
 
     /**
      * Updated label
      */
     updateLabel () {
-      let places = this.getSelectedPlaces()
+      let places = this.getSelectedVenues()
 
       if (places.length === 0) {
         return
       }
       let info = []
       for (let i = 0; i < places.length; i++) {
-        info.push(Math.round(turf.area(places[i].geometry)) + 'm²')
+        let place = places[i]
+        if (place.geometry.type === 'Polygon') {
+          info.push(Math.round(turf.area(place.geometry)) + 'm²')
+        }
       }
       let label = I18n.t(NAME).title
       if (info.length) {
@@ -415,6 +453,266 @@
 
       let elm = document.querySelector('div.form-group.e40 wz-label')
       if (elm) elm.innerText = label
+    }
+
+    /**
+     * Scale places to X m²
+     * @param {Venue[]} elements
+     * @param {Number} x square meters
+     * @param {Boolean} orMore flag
+     */
+    scale (elements, x, orMore = false) {
+      this.group('scale ' + (elements.length) + ' element(s) to ' + x + 'm²')
+
+      let total = 0
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let scale = Math.sqrt((x + 5) / turf.area(elements[i].geometry))
+          if (scale < 1 && orMore) {
+            continue
+          }
+
+          let geometry = turf.transformScale(elements[i].geometry, scale)
+
+          this.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: elements[i].id, geometry
+          })
+
+          total++
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+      this.log(total + ' element(s) was scaled')
+      this.groupEnd()
+    }
+
+    /**
+     * Orthogonalize place(s)
+     * @param {Venue[]} elements
+     */
+    orthogonalize (elements) {
+      this.group('orthogonalize ' + (elements.length) + ' element(s)')
+      let total = 0
+      // skip points
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let geometry = simplifyPolygon(elements[i].geometry)
+              geometry = normalizeRightAngles(geometry)
+
+          if (!this.compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
+            this.wmeSDK.DataModel.Venues.updateVenue({
+              venueId: elements[i].id, geometry
+            })
+            total++
+          }
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+      this.log(total + ' element(s) was orthogonalized')
+      this.groupEnd()
+    }
+
+
+    /**
+     * Smooth place(s)
+     * @param {Venue[]} elements
+     */
+    smooth (elements) {
+      this.group('smooth ' + (elements.length) + ' element(s)')
+
+      let total = 0
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let geometry = turf.polygonSmooth(elements[i].geometry).features[0].geometry;
+
+          if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
+            this.wmeSDK.DataModel.Venues.updateVenue({
+              venueId: elements[i].id, geometry
+            })
+            total++
+          }
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+      this.log(total + ' element(s) was smoothed')
+      this.groupEnd()
+    }
+
+    /**
+     * Simplify place(s)
+     * @param {Venue[]} elements
+     * @param {Number} tolerance
+     */
+    simplify (elements, tolerance = 0.00001) {
+      this.group('simplify ' + (elements.length) + ' element(s) with < tolerance=' + tolerance + ' >')
+
+      let total = 0
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let geometry = turf.simplify(elements[i].geometry, { tolerance })
+
+          if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
+            this.wmeSDK.DataModel.Venues.updateVenue({
+              venueId: elements[i].id, geometry
+            })
+            total++
+          }
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+      this.log(total + ' element(s) was simplified')
+      this.groupEnd()
+    }
+
+    /**
+     * Transform the Point to circle place
+     *
+     * @param {Venue[]} elements
+     * @param {Number} area in square meters
+     * @param {Number} steps
+     */
+    circle (elements, area, steps = 64) {
+      this.group('transform ' + (elements.length) + ' element(s) to circle')
+
+      let total = 0
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let place = elements[i]
+          let geometry = place.geometry
+
+          if (geometry.type !== 'Point') {
+            geometry = turf.centroid(geometry).geometry
+          }
+
+          let circle = createCirclePolygon(geometry, area, steps)
+
+          this.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: place.id, geometry: circle.geometry
+          })
+          total++
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+
+      this.log(total + ' element(s) was transformed')
+      this.groupEnd()
+
+      this.wmeSDK.Editing.clearSelection()
+
+      // select changed elements
+      setTimeout(() =>
+        this.wmeSDK.Editing.setSelection({ selection: {
+            ids: elements.map(e => String(e.id)),
+            objectType: 'venue'
+          }}), 100)
+    }
+
+
+    /**
+     * Transform the Point(s) to square place
+     *
+     * @param {Venue[]} elements
+     * @param {Number} area in square meters
+     */
+    square (elements, area) {
+      this.group('transform ' + (elements.length) + ' element(s) to square')
+
+      let total = 0
+      for (let i = 0; i < elements.length; i++) {
+        try {
+          let place = elements[i]
+
+          let geometry = place.geometry
+
+          if (geometry.type !== 'Point') {
+            geometry = turf.centroid(geometry).geometry
+          }
+
+          let square = createSquarePolygon(geometry, area)
+
+          this.wmeSDK.DataModel.Venues.updateVenue({
+            venueId: place.id, geometry: square.geometry
+          })
+
+          total++
+        } catch (e) {
+          this.log('skipped', e)
+        }
+      }
+
+      this.log(total + ' element(s) was transformed')
+      this.groupEnd()
+
+      this.wmeSDK.Editing.clearSelection()
+
+      // select changed elements
+      setTimeout(() =>
+        this.wmeSDK.Editing.setSelection({ selection: {
+            ids: elements.map(e => String(e.id)),
+            objectType: 'venue'
+          }}), 100)
+    }
+
+    /**
+     * Create copy for place
+     * @param {Venue} venue
+     */
+    copyPlace (venue) {
+      this.log('created a copy of the POI ' + venue.name)
+
+      let geometry = turf.transformTranslate(venue.geometry, 0.01, 0.005)
+
+      let venueId = this.wmeSDK.DataModel.Venues.addVenue(
+        {
+          category: venue.categories[0],
+          geometry: geometry
+        }
+      )
+
+      let newVenue = {
+        // isAdLocked: venue.isAdLocked,
+        // isResidential: venue.isResidential,
+        name: venue.name + ' (copy)',
+        venueId: String(venueId),
+      }
+
+      this.wmeSDK.DataModel.Venues.updateVenue(newVenue)
+
+      let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
+
+      if (address?.street?.id) {
+        this.wmeSDK.DataModel.Venues.updateAddress(
+          {
+            venueId: String(venueId),
+            streetId: address.street.id,
+          }
+        )
+      }
+    }
+
+    /**
+     * Compare two polygons point-by-point
+     *
+     * @param {Array} coordinates1
+     * @param {Array} coordinates2
+     * @return boolean
+     */
+    compare (coordinates1, coordinates2) {
+      if (coordinates1.length !== coordinates2.length) {
+        return false
+      }
+      for (let i = 0; i < coordinates1.length; i++) {
+        if (Math.abs(coordinates1[i][0] - coordinates2[i][0]) > .00001
+          || Math.abs(coordinates1[i][1] - coordinates2[i][1]) > .00001) {
+          return false
+        }
+      }
+      return true
     }
   }
 
@@ -429,7 +727,7 @@
       eventHandler: ({dataModelName, objectIds}) => {
         // console.log(dataModelName)
         // console.log(objectIds)
-        E40Instance.updateLabel()
+        E40Instance.refreshPanel()
       }
     });
   })
@@ -440,8 +738,8 @@
    * @param {Boolean} orMore flag
    * @return {boolean}
    */
-  function scaleSelected (x, orMore = false) {
-    scaleArray(E40Instance.getSelectedPlaces(), x, orMore)
+  function scale (x, orMore = false) {
+    E40Instance.scale(E40Instance.getSelectedPlaces(), x, orMore)
     return false
   }
 
@@ -452,43 +750,8 @@
    * @return {boolean}
    */
   function scaleAll (x = 650, orMore = true) {
-    scaleArray(E40Instance.getAllPlaces(), x, orMore)
+    E40Instance.scale(E40Instance.getAllPlaces(), x, orMore)
     return false
-  }
-
-  /**
-   * Scale places to X m²
-   * @param {Venue[]} elements
-   * @param {Number} x square meters
-   * @param {Boolean} orMore flag
-   */
-  function scaleArray (elements, x, orMore = false) {
-    console.groupCollapsed(
-      '%c' + NAME + ': 📏 %c try to scale ' + (elements.length) + ' element(s) to ' + x + 'm²',
-      'color: #0DAD8D; font-weight: bold',
-      'color: dimgray; font-weight: normal'
-    )
-    let total = 0
-    for (let i = 0; i < elements.length; i++) {
-      try {
-        let scale = Math.sqrt((x + 5) / turf.area(elements[i].geometry))
-        if (scale < 1 && orMore) {
-          continue
-        }
-
-        let geometry = turf.transformScale(elements[i].geometry, scale)
-
-        E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-          venueId: elements[i].id, geometry
-        })
-
-        total++
-      } catch (e) {
-        console.log('skipped', e)
-      }
-    }
-    console.log(total + ' element(s) was scaled')
-    console.groupEnd()
   }
 
   /**
@@ -496,7 +759,9 @@
    * @return {boolean}
    */
   function orthogonalize () {
-    orthogonalizeArray(E40Instance.getSelectedPlaces())
+    E40Instance.orthogonalize(
+      E40Instance.getSelectedPlaces()
+    )
     return false
   }
 
@@ -507,43 +772,221 @@
   function orthogonalizeAll () {
     // skip parking, natural and outdoors
     // TODO: make options for filters
-    orthogonalizeArray(
+    E40Instance.orthogonalize(
       E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES'])
     )
     return false
   }
 
   /**
-   * Orthogonalize place(s)
-   * @param {Venue[]} elements
+   * Smooth selected place(s)
+   * @return {boolean}
    */
-  function orthogonalizeArray (elements) {
-    console.groupCollapsed(
-      '%c' + NAME + ': ⬛️ %c try to orthogonalize ' + (elements.length) + ' element(s)',
+  function smooth () {
+    E40Instance.smooth(
+      E40Instance.getSelectedPlaces()
+    )
+    return false
+  }
+
+  /**
+   * Simplify selected place(s)
+   * @param {Number} tolerance
+   * @return {boolean}
+   */
+  function simplify (tolerance = 0.00001) {
+    E40Instance.simplify(
+      E40Instance.getSelectedPlaces(),
+      tolerance
+    )
+    return false
+  }
+
+  /**
+   * Simplify all places in the editor area
+   * @param {Number} tolerance
+   * @return {boolean}
+   */
+  function simplifyAll (tolerance = 0.00001) {
+    // skip parking, natural and outdoors
+    E40Instance.simplify(
+      E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']),
+      tolerance
+    )
+    return false
+  }
+
+  /**
+   * Transform the Point to circle place
+   * @param {Number} area in square meters
+   * @param {Number} steps
+   */
+  function circle (area, steps = 64) {
+    E40Instance.circle(
+      E40Instance.getSelectedVenues(),
+      area,
+      steps
+    )
+    return false
+  }
+
+  /**
+   * Transform the Point to square place
+   * @param {Number} area in square meters
+   */
+  function square (area) {
+    E40Instance.square(
+      E40Instance.getSelectedVenues(),
+      area
+    )
+    return false
+  }
+
+  /**
+   * Copy selected places
+   * Last of them will be chosen
+   */
+  function copyPlaces () {
+    let venues = E40Instance.getSelectedPlaces()
+
+    for (let i = 0; i < venues.length; i++) {
+      E40Instance.copyPlace(venues[i])
+    }
+  }
+
+  /**
+   * wmeSDK.Map.enablePolygonResize()
+   */
+  function enablePolygonResize () {
+    console.log(
+      '%c' + NAME + ': %cenable resize for Polygon',
       'color: #0DAD8D; font-weight: bold',
       'color: dimgray; font-weight: normal'
     )
-    let total = 0
-    // skip points
-    for (let i = 0; i < elements.length; i++) {
-      try {
-        let geometry = simplifyPolygon(elements[i].geometry)
-            geometry = normalizeRightAngles(geometry)
-
-        // console.log(elements[i].geometry.coordinates[0], geometry.coordinates[0])
-
-        if (!compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
-          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-            venueId: elements[i].id, geometry
-          })
-          total++
-        }
-      } catch (e) {
-        console.log('skipped', e)
-      }
+    let places = E40Instance.getSelectedPlaces()
+    if (places.length) {
+      E40Instance.wmeSDK.Map.enablePolygonResize()
     }
-    console.log(total + ' element(s) was orthogonalized')
-    console.groupEnd()
+  }
+
+  /**
+   * wmeSDK.Map.enablePolygonRotation()
+   */
+  function enablePolygonRotation() {
+    console.log(
+      '%c' + NAME + ': %cenable rotation for Polygon',
+      'color: #0DAD8D; font-weight: bold',
+      'color: dimgray; font-weight: normal'
+    )
+    let places = E40Instance.getSelectedPlaces()
+    if (places.length) {
+      E40Instance.wmeSDK.Map.enablePolygonRotation()
+    }
+  }
+
+  /**
+   * Creates a GeoJSON Polygon representing a circle centered at a given point
+   * with a radius calculated from a desired area in square meters.
+   *
+   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
+   * @param {number} areaSqMeters - The desired area of the circle in square meters (m²).
+   * @param {number} [steps=64] - The number of steps/segments to create the circle (higher = smoother).
+   * @returns {object} A GeoJSON Polygon Feature representing the circle.
+   */
+  function createCirclePolygon(centerPoint, areaSqMeters, steps = 64) {
+    if (centerPoint.type !== 'Point') {
+      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
+    }
+    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
+      throw new Error('Invalid areaSqMeters: Must be a positive number.');
+    }
+
+    // 1. Calculate the required radius (R) from the Area (A)
+    // The formula for the area of a circle is: A = π * R²
+    // Rearranging for the radius: R = sqrt(A / π)
+    const radiusMeters = Math.sqrt(areaSqMeters / Math.PI);
+
+    // 2. Convert the radius from meters to kilometers (Turf.js default unit)
+    const radiusKilometers = radiusMeters / 1000;
+
+    // 3. Use turf.circle to create the polygon
+    return turf.circle(centerPoint, radiusKilometers, {
+      steps: steps,
+      units: 'kilometers' // Explicitly set units, though it's the default
+    });
+  }
+
+  /**
+   * Creates a GeoJSON Polygon representing a square centered at a given point
+   * with a side length calculated from a desired area in square meters.
+   *
+   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
+   * @param {number} areaSqMeters - The desired area of the square in square meters (m²).
+   * @returns {object} A GeoJSON Polygon Feature representing the square.
+   */
+  function createSquarePolygon(centerPoint, areaSqMeters) {
+    if (centerPoint.type !== 'Point') {
+      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
+    }
+    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
+      throw new Error('Invalid areaSqMeters: Must be a positive number.');
+    }
+
+    // 1. Calculate the required Side Length (S) from the Area (A)
+    // The formula for the area of a square is: A = S²
+    // Rearranging for the side length: S = sqrt(A)
+    const sideLengthMeters = Math.sqrt(areaSqMeters);
+
+    // 2. Calculate the distance from the center to any edge of the square
+    // This is half the side length: HalfSide = S / 2
+    const halfSideMeters = sideLengthMeters / 2;
+
+    // 3. Since Turf.js typically handles distances in kilometers, convert the half-side.
+    const halfSideKilometers = halfSideMeters / 1000;
+
+    // 4. Calculate the bounding box (bbox) coordinates
+    // We can use a combination of `turf/destination` or, more simply for a centered square,
+    // manually calculate the offsets using Turf's distance handling for min/max coordinates.
+    // However, a simpler approach is to calculate the bounding box for the square's corners.
+
+    // A centered square's extent is defined by its center coordinates +/- (half-side in distance units).
+    // The `turf/bbox` function is often used to get the extent of a feature, but here we need
+    // to calculate the BBOX based on a distance from the center point.
+
+    // Calculate the geographic bounding box [west, south, east, north]
+    // Due to the complexities of Earth's curvature, calculating precise coordinates
+    // by simply adding/subtracting distances (especially for large squares) is difficult.
+    // A robust, though slightly over-engineered, way is to use the `turf/buffer` function
+    // to approximate the square's corners.
+
+    // A simpler approach for small, localized areas is to calculate the min/max coordinates
+    // by using the `turf/transformScale` on a unit square. However, this is more complex.
+
+    // A common and practical approximation for *small* areas:
+    const [lon, lat] = centerPoint.coordinates;
+
+    // For simplicity, we'll use an approximation based on latitude/longitude differences.
+    // WARNING: This approximation is only accurate for very small areas or near the equator.
+    // For a highly accurate square, you would use geodesic distance functions (like turf/destination)
+    // to find the four corners based on the center point and the half-side distance.
+
+    // --- Robust Geodesic Calculation for the Four Corners ---
+    const options = { units: 'kilometers' };
+
+    // 45 degrees: Northeast, 135 degrees: Northwest, 225 degrees: Southwest, 315 degrees: Southeast
+    const cornerNE = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 45, options);
+    const cornerSW = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 225, options);
+
+    const minLon = cornerSW.geometry.coordinates[0];
+    const minLat = cornerSW.geometry.coordinates[1];
+    const maxLon = cornerNE.geometry.coordinates[0];
+    const maxLat = cornerNE.geometry.coordinates[1];
+
+    // The BBOX format is [minX, minY, maxX, maxY] => [west, south, east, north]
+    const calculatedBbox = [minLon, minLat, maxLon, maxLat];
+
+    // 5. Use turf.bboxPolygon to create the square polygon from the bounding box
+    return turf.bboxPolygon(calculatedBbox);
   }
 
   /**
@@ -552,15 +995,14 @@
    * @returns {Array<Array<number>> | null} The exterior ring, or null on error.
    */
   function getExteriorRing(geojsonObject) {
-    if (geojsonObject.type === "Feature" && geojsonObject.geometry && geojsonObject.geometry.type === "Polygon") {
+    if (geojsonObject.type === "Feature" && geojsonObject.geometry?.type === "Polygon") {
       return geojsonObject.geometry.coordinates[0];
     } else if (geojsonObject.type === "Polygon") {
       return geojsonObject.coordinates[0];
     }
-    console.error("Invalid GeoJSON input: simplifyPolygon accepts Feature<Polygon> or Polygon geometry object only.");
+    console.error("Invalid GeoJSON input: method accepts Feature<Polygon> or Polygon geometry object only.");
     return null;
   }
-
 
   /**
    * Iteratively simplifies a GeoJSON Polygon ring by removing points that form
@@ -688,350 +1130,7 @@
     };
   }
 
-  /**
-   * Smooth selected place(s)
-   * @return {boolean}
-   */
-  function smooth () {
-    smoothArray(
-      E40Instance.getSelectedPlaces()
-    )
-    return false
-  }
 
-  /**
-   * Smooth place(s)
-   * @param {Venue[]} elements
-   */
-  function smoothArray (elements) {
-    console.groupCollapsed(
-      '%c' + NAME + ': ⚫️ %c try to smooth ' + (elements.length) + ' element(s)',
-      'color: #0DAD8D; font-weight: bold',
-      'color: dimgray; font-weight: normal'
-    )
-    let total = 0
-    for (let i = 0; i < elements.length; i++) {
-      try {
-        let geometry = turf.polygonSmooth(elements[i].geometry).features[0].geometry;
-
-        if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
-          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-            venueId: elements[i].id, geometry
-          })
-          total++
-        }
-      } catch (e) {
-        console.log('skipped', e)
-      }
-    }
-    console.log(total + ' element(s) was smoothed')
-    console.groupEnd()
-  }
-
-  /**
-   * Simplify selected place(s)
-   * @param {Number} tolerance
-   * @return {boolean}
-   */
-  function simplify (tolerance = 0.00001) {
-    simplifyArray(
-      E40Instance.getSelectedPlaces(), tolerance
-    )
-    return false
-  }
-
-  /**
-   * Simplify all places in the editor area
-   * @param {Number} tolerance
-   * @return {boolean}
-   */
-  function simplifyAll (tolerance = 0.00001) {
-    // skip parking, natural and outdoors
-    simplifyArray(
-      E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES']),
-      tolerance
-    )
-    return false
-  }
-
-  /**
-   * Simplify place(s)
-   * @param {Venue[]} elements
-   * @param {Number} tolerance
-   */
-  function simplifyArray (elements, tolerance = 0.00001) {
-    console.groupCollapsed(
-      '%c' + NAME + ': < tolerance=' + tolerance + ' > %c try to simplify ' + (elements.length) + ' element(s)',
-      'color: #0DAD8D; font-weight: bold',
-      'color: dimgray; font-weight: normal'
-    )
-    let total = 0
-    for (let i = 0; i < elements.length; i++) {
-      try {
-        let geometry = turf.simplify(elements[i].geometry, { tolerance })
-
-        if (geometry.coordinates[0].length !== elements[i].geometry.coordinates[0].length) {
-          E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-            venueId: elements[i].id, geometry
-          })
-          total++
-        }
-      } catch (e) {
-        console.log('skipped', e)
-      }
-    }
-    console.log(total + ' element(s) was simplified')
-    console.groupEnd()
-  }
-  /**
-   * Copy selected places
-   * Last of them will be chosen
-   */
-  function copyPlaces () {
-    let venues = E40Instance.getSelectedPlaces()
-
-    for (let i = 0; i < venues.length; i++) {
-      copyPlace(venues[i])
-    }
-  }
-
-  /**
-   * Compare two polygons point-by-point
-   *
-   * @param {Array} coordinates1
-   * @param {Array} coordinates2
-   * @return boolean
-   */
-  function compare (coordinates1, coordinates2) {
-    if (coordinates1.length !== coordinates2.length) {
-      return false
-    }
-    for (let i = 0; i < coordinates1.length; i++) {
-      if (Math.abs(coordinates1[i][0] - coordinates2[i][0]) > .00001
-        || Math.abs(coordinates1[i][1] - coordinates2[i][1]) > .00001) {
-        return false
-      }
-    }
-    return true
-  }
-
-  /**
-   * Transform the Point to circle place
-   * @param {Number} area in square meters
-   * @param {Number} steps
-   */
-  function circle (area, steps = 64) {
-    let place = E40Instance.getSelectedVenue()
-    let geometry = place.geometry
-
-    if (geometry.type !== 'Point') {
-      geometry = turf.centroid(geometry).geometry
-    }
-
-    let circle = createCirclePolygon(geometry, area, steps)
-
-    E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-      venueId: place.id, geometry: circle.geometry
-    })
-
-    E40Instance.wmeSDK.Editing.clearSelection()
-
-    setTimeout(() =>
-      E40Instance.wmeSDK.Editing.setSelection({ selection: {
-        ids:[ String(place.id) ],
-        objectType: 'venue'
-      }}), 100)
-  }
-
-  /**
-   * Creates a GeoJSON Polygon representing a circle centered at a given point
-   * with a radius calculated from a desired area in square meters.
-   *
-   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
-   * @param {number} areaSqMeters - The desired area of the circle in square meters (m²).
-   * @param {number} [steps=64] - The number of steps/segments to create the circle (higher = smoother).
-   * @returns {object} A GeoJSON Polygon Feature representing the circle.
-   */
-  function createCirclePolygon(centerPoint, areaSqMeters, steps = 64) {
-    if (centerPoint.type !== 'Point') {
-      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
-    }
-    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
-      throw new Error('Invalid areaSqMeters: Must be a positive number.');
-    }
-
-    // 1. Calculate the required radius (R) from the Area (A)
-    // The formula for the area of a circle is: A = π * R²
-    // Rearranging for the radius: R = sqrt(A / π)
-    const radiusMeters = Math.sqrt(areaSqMeters / Math.PI);
-
-    // 2. Convert the radius from meters to kilometers (Turf.js default unit)
-    const radiusKilometers = radiusMeters / 1000;
-
-    // 3. Use turf.circle to create the polygon
-    return turf.circle(centerPoint, radiusKilometers, {
-      steps: steps,
-      units: 'kilometers' // Explicitly set units, though it's the default
-    });
-  }
-
-  /**
-   * Transform the Point to square place
-   * @param {Number} area in square meters
-   */
-  function square (area) {
-    let place = E40Instance.getSelectedVenue()
-
-    let geometry = place.geometry
-
-    if (geometry.type !== 'Point') {
-      geometry = turf.centroid(geometry).geometry
-    }
-
-    let square = createSquarePolygon(geometry, area)
-
-    E40Instance.wmeSDK.DataModel.Venues.updateVenue({
-      venueId: place.id, geometry: square.geometry
-    })
-
-    E40Instance.wmeSDK.Editing.clearSelection()
-
-    setTimeout(() =>
-      E40Instance.wmeSDK.Editing.setSelection({ selection: {
-          ids:[ String(place.id) ],
-          objectType: 'venue'
-        }}), 100)
-  }
-
-  /**
-   * Creates a GeoJSON Polygon representing a square centered at a given point
-   * with a side length calculated from a desired area in square meters.
-   *
-   * @param {object} centerPoint - A GeoJSON Point feature (e.g., turf.point([lon, lat])).
-   * @param {number} areaSqMeters - The desired area of the square in square meters (m²).
-   * @returns {object} A GeoJSON Polygon Feature representing the square.
-   */
-  function createSquarePolygon(centerPoint, areaSqMeters) {
-    if (centerPoint.type !== 'Point') {
-      throw new Error('Invalid centerPoint: Must be a GeoJSON Point feature.');
-    }
-    if (typeof areaSqMeters !== 'number' || areaSqMeters <= 0) {
-      throw new Error('Invalid areaSqMeters: Must be a positive number.');
-    }
-
-    // 1. Calculate the required Side Length (S) from the Area (A)
-    // The formula for the area of a square is: A = S²
-    // Rearranging for the side length: S = sqrt(A)
-    const sideLengthMeters = Math.sqrt(areaSqMeters);
-
-    // 2. Calculate the distance from the center to any edge of the square
-    // This is half the side length: HalfSide = S / 2
-    const halfSideMeters = sideLengthMeters / 2;
-
-    // 3. Since Turf.js typically handles distances in kilometers, convert the half-side.
-    const halfSideKilometers = halfSideMeters / 1000;
-
-    // 4. Calculate the bounding box (bbox) coordinates
-    // We can use a combination of `turf/destination` or, more simply for a centered square,
-    // manually calculate the offsets using Turf's distance handling for min/max coordinates.
-    // However, a simpler approach is to calculate the bounding box for the square's corners.
-
-    // A centered square's extent is defined by its center coordinates +/- (half-side in distance units).
-    // The `turf/bbox` function is often used to get the extent of a feature, but here we need
-    // to calculate the BBOX based on a distance from the center point.
-
-    // Calculate the geographic bounding box [west, south, east, north]
-    // Due to the complexities of Earth's curvature, calculating precise coordinates
-    // by simply adding/subtracting distances (especially for large squares) is difficult.
-    // A robust, though slightly over-engineered, way is to use the `turf/buffer` function
-    // to approximate the square's corners.
-
-    // A simpler approach for small, localized areas is to calculate the min/max coordinates
-    // by using the `turf/transformScale` on a unit square. However, this is more complex.
-
-    // A common and practical approximation for *small* areas:
-    const [lon, lat] = centerPoint.coordinates;
-
-    // For simplicity, we'll use an approximation based on latitude/longitude differences.
-    // WARNING: This approximation is only accurate for very small areas or near the equator.
-    // For a highly accurate square, you would use geodesic distance functions (like turf/destination)
-    // to find the four corners based on the center point and the half-side distance.
-
-    // --- Robust Geodesic Calculation for the Four Corners ---
-    const options = { units: 'kilometers' };
-
-    // 45 degrees: Northeast, 135 degrees: Northwest, 225 degrees: Southwest, 315 degrees: Southeast
-    const cornerNE = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 45, options);
-    const cornerSW = turf.destination(centerPoint, halfSideKilometers * Math.SQRT2, 225, options);
-
-    const minLon = cornerSW.geometry.coordinates[0];
-    const minLat = cornerSW.geometry.coordinates[1];
-    const maxLon = cornerNE.geometry.coordinates[0];
-    const maxLat = cornerNE.geometry.coordinates[1];
-
-    // The BBOX format is [minX, minY, maxX, maxY] => [west, south, east, north]
-    const calculatedBbox = [minLon, minLat, maxLon, maxLat];
-
-    // 5. Use turf.bboxPolygon to create the square polygon from the bounding box
-    return turf.bboxPolygon(calculatedBbox);
-  }
-
-  /**
-   * wmeSDK.Map.enablePolygonResize()
-   */
-  function enablePolygonResize () {
-    console.log('%c' + NAME + ': %c enable resize')
-    E40Instance.wmeSDK.Map.enablePolygonResize()
-  }
-
-  /**
-   * wmeSDK.Map.enablePolygonRotation()
-   */
-  function enablePolygonRotation() {
-    console.log('%c' + NAME + ': %c enable rotation')
-    E40Instance.wmeSDK.Map.enablePolygonRotation()
-  }
-
-  /**
-   * Create copy for place
-   * @param {Venue} venue
-   */
-  function copyPlace (venue) {
-    console.log(
-      '%c' + NAME + ': %c created a copy of the POI ' + venue.name,
-      'color: #0DAD8D; font-weight: bold',
-      'color: dimgray; font-weight: normal'
-    )
-
-    let geometry = turf.transformTranslate(venue.geometry, 0.01, 0.005)
-
-    let venueId = E40Instance.wmeSDK.DataModel.Venues.addVenue(
-      {
-        category: venue.categories[0],
-        geometry: geometry
-      }
-    )
-
-    let newVenue = {
-      // isAdLocked: venue.isAdLocked,
-      // isResidential: venue.isResidential,
-      name: venue.name + ' (copy)',
-      venueId: String(venueId),
-    }
-
-    E40Instance.wmeSDK.DataModel.Venues.updateVenue(newVenue)
-
-    let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
-
-    if (address?.street?.id) {
-      E40Instance.wmeSDK.DataModel.Venues.updateAddress(
-        {
-          venueId: String(venueId),
-          streetId: address.street.id,
-        }
-      )
-    }
-  }
   /**
    * A utility class for spherical geometry (geodesy).
    * Assumes points are [longitude, latitude] in degrees.
@@ -1057,6 +1156,7 @@
 
     /**
      * Normalizes an angle to the range -180 to +180 degrees.
+     *
      * @param {number} degrees
      * @return {number} degrees
      */
@@ -1066,6 +1166,7 @@
 
     /**
      * Calculates the initial bearing from pA to pB.
+     *
      * @param {[number,number]} pA - [lon, lat] of start point.
      * @param {[number,number]} pB - [lon, lat] of end point.
      * @returns {number} Initial bearing in degrees (0-360).
@@ -1090,6 +1191,7 @@
 
     /**
      * Calculates the interior angle at vertex p2.
+     *
      * @param {[number,number]} p1
      * @param {[number,number]} p2
      * @param {[number,number]} p3
@@ -1118,6 +1220,7 @@
 
     /**
      * Calculates the angular distance between two points using the Haversine formula.
+     *
      * @param {[number,number]} pA - [lon, lat] of start point.
      * @param {[number,number]} pB - [lon, lat] of end point.
      * @returns {number} The angular distance in radians.
