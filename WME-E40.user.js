@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.8.3
+// @version      0.8.4
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -602,16 +602,8 @@
       this.log(total + ' element(s) was transformed')
       this.groupEnd()
 
-      this.wmeSDK.Editing.clearSelection()
-
-      // select changed elements
-      setTimeout(() =>
-        this.wmeSDK.Editing.setSelection({ selection: {
-            ids: elements.map(e => String(e.id)),
-            objectType: 'venue'
-          }}), 100)
+      this.selectVenues(elements.map(e => String(e.id)))
     }
-
 
     /**
      * Transform the Point(s) to square place
@@ -648,12 +640,19 @@
       this.log(total + ' element(s) was transformed')
       this.groupEnd()
 
+      this.selectVenues(elements.map(e => String(e.id)))
+    }
+
+    /**
+     * @param {String[]} ids of venues
+     */
+    selectVenues(ids) {
       this.wmeSDK.Editing.clearSelection()
 
       // select changed elements
       setTimeout(() =>
         this.wmeSDK.Editing.setSelection({ selection: {
-            ids: elements.map(e => String(e.id)),
+            ids: ids,
             objectType: 'venue'
           }}), 100)
     }
@@ -661,6 +660,7 @@
     /**
      * Create copy for place
      * @param {Venue} venue
+     * @return {String}
      */
     copyPlace (venue) {
       this.log('created a copy of the POI ' + venue.name)
@@ -674,25 +674,27 @@
         }
       )
 
-      let newVenue = {
+      venueId = String(venueId)
+
+      this.wmeSDK.DataModel.Venues.updateVenue({
+        venueId,
+        name: venue.name + ' (copy)',
         // isAdLocked: venue.isAdLocked,
         // isResidential: venue.isResidential,
-        name: venue.name + ' (copy)',
-        venueId: String(venueId),
-      }
-
-      this.wmeSDK.DataModel.Venues.updateVenue(newVenue)
+      })
 
       let address = E40Instance.wmeSDK.DataModel.Venues.getAddress( { venueId: venue.id } )
 
       if (address?.street?.id) {
         this.wmeSDK.DataModel.Venues.updateAddress(
           {
-            venueId: String(venueId),
+            venueId,
             streetId: address.street.id,
           }
         )
       }
+
+      return venueId
     }
 
     /**
@@ -848,10 +850,13 @@
    */
   function copyPlaces () {
     let venues = E40Instance.getSelectedPlaces()
-
+    let ids = []
     for (let i = 0; i < venues.length; i++) {
-      E40Instance.copyPlace(venues[i])
+      let id = E40Instance.copyPlace(venues[i])
+      ids.push(id)
     }
+
+    E40Instance.selectVenues(ids)
   }
 
   /**
