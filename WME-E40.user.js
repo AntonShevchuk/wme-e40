@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.9.1
+// @version      0.9.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -1082,10 +1082,10 @@
       console.log(`[Iter ${totalIterations}] Start`)
 
       // Check points from index 1 up to length - 2.
-      for (let i = 0; i < points.length - 1; i++) {
-        const pPrev = (i === 0) ? points[points.length - 2] : points[i - 1];
+      for (let i = 1; i < points.length; i++) {
+        const pPrev = points[i - 1];
         const pCurr = points[i];
-        const pNext = points[i + 1];
+        const pNext = (i === points.length - 1) ? points[1] : points[i + 1];
 
         const angle = GeoUtils.findAngle(pPrev, pCurr, pNext);
 
