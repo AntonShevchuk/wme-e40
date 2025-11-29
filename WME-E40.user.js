@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.9.2
+// @version      0.9.3
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -498,8 +498,16 @@
       for (let i = 0; i < elements.length; i++) {
         try {
           let geometry = elements[i].geometry
-              geometry = simplifyPolygon(geometry)
-              geometry = normalizeRightAngles(geometry)
+          let area = turf.area(elements[i].geometry)
+
+          geometry = simplifyPolygon(geometry)
+          geometry = normalizeRightAngles(geometry)
+
+          let scale = Math.sqrt(area / turf.area(geometry))
+
+          this.log('Apply scale ' + scale)
+
+          geometry = turf.transformScale(geometry, scale)
 
           if (!this.compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
             this.wmeSDK.DataModel.Venues.updateVenue({
@@ -728,7 +736,7 @@
     E40Instance.wmeSDK.Events.on({
       eventName: "wme-data-model-objects-changed",
       eventHandler: ({dataModelName, objectIds}) => {
-        console.log(dataModelName)
+        // console.log(dataModelName)
         // console.log(objectIds)
         E40Instance.refreshPanel()
       }
