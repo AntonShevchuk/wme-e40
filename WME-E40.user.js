@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.9.0
+// @version      0.9.1
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -16,7 +16,7 @@
 // @icon         data:image/png;base64,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
 // @grant        none
 // @require      https://update.greasyfork.org/scripts/389765/1090053/CommonUtils.js
-// @require      https://update.greasyfork.org/scripts/450160/1701700/WME-Bootstrap.js
+// @require      https://update.greasyfork.org/scripts/450160/1704233/WME-Bootstrap.js
 // @require      https://update.greasyfork.org/scripts/450221/1691071/WME-Base.js
 // @require      https://update.greasyfork.org/scripts/450320/1688694/WME-UI.js
 //
@@ -94,7 +94,7 @@
 
   const STYLE =
     '.e40 .controls { display: grid; grid-template-columns: repeat(6, 44px); gap: 6px; padding: 0; }' +
-    '.e40 .button-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }' +
+    '.e40 .button-toolbar { display: flex; flex-wrap: wrap; gap: 0 6px; align-items: center; }' +
     '.e40 .button-toolbar button.e40 { min-height: 30px; line-height: 25px; margin-bottom: 16px; }' +
     '.e40 button.e40 { width:44px;margin:0;padding:2px;display:flex;justify-content:center;border:1px solid #eee;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:nowrap;color:#333; flex-wrap: wrap; align-content: center;} ' +
     '.e40 button.e40:hover { box-shadow:0 2px 8px 0 rgba(0,0,0,.1),inset 0 0 100px 100px rgba(255,255,255,.3) } ' +
@@ -497,7 +497,8 @@
       // skip points
       for (let i = 0; i < elements.length; i++) {
         try {
-          let geometry = simplifyPolygon(elements[i].geometry)
+          let geometry = elements[i].geometry
+              geometry = simplifyPolygon(geometry)
               geometry = normalizeRightAngles(geometry)
 
           if (!this.compare(elements[i].geometry.coordinates[0], geometry.coordinates[0])) {
@@ -775,7 +776,15 @@
     // skip parking, natural and outdoors
     // TODO: make options for filters
     E40Instance.orthogonalize(
-      E40Instance.getAllPlaces(['OUTDOORS', 'PARKING_LOT', 'NATURAL_FEATURES'])
+      E40Instance.getAllPlaces([
+        'CAMPING_TRAILER_PARK',
+        'FOREST_GROVE',
+        'JUNCTION_INTERCHANGE',
+        'NATURAL_FEATURES',
+        'OUTDOORS',
+        'PARKING_LOT',
+        'PLAYGROUND',
+      ])
     )
     return false
   }
@@ -995,31 +1004,13 @@
   }
 
   /**
-   * Extracts the exterior coordinate ring from a Feature<Polygon> or Polygon geometry object.
-   * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
-   * @returns {Array<Array<number>> | null} The exterior ring, or null on error.
-   */
-  function getExteriorRing(geojsonObject) {
-    if (geojsonObject.type === "Feature" && geojsonObject.geometry?.type === "Polygon") {
-      return geojsonObject.geometry.coordinates[0];
-    } else if (geojsonObject.type === "Polygon") {
-      return geojsonObject.coordinates[0];
-    }
-    console.error("Invalid GeoJSON input: method accepts Feature<Polygon> or Polygon geometry object only.");
-    return null;
-  }
-
-  /**
    * Iteratively simplifies a GeoJSON Polygon ring by removing points that form
    * an angle between 175° and 180° with their neighbors.
    * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
    * @returns {object} The simplified GeoJSON Polygon geometry object (type: "Polygon").
    */
   function simplifyPolygon(geojsonObject) {
-    let ring = getExteriorRing(geojsonObject);
-    if (!ring) return { type: "Polygon", coordinates: [[]] };
-
-    let points = [...ring];
+    let points = geojsonObject.coordinates[0].slice()
     const MIN_UNIQUE_POINTS = 4; // A, B, C, A (length 4) means 3 unique points (a triangle)
     const MIN_ANGLE = 175.0;
     const MAX_ANGLE = 185.0;
@@ -1075,10 +1066,8 @@
    * @returns {object} The angle-normalized GeoJSON Polygon geometry object.
    */
   function normalizeRightAngles(geojsonObject) {
-    let ring = getExteriorRing(geojsonObject);
-    if (!ring) return { type: "Polygon", coordinates: [[]] };
+    let points = geojsonObject.coordinates[0].slice()
 
-    let points = JSON.parse(JSON.stringify(ring)); // Deep copy to modify
     let pointsAdjusted = 0;
     let totalIterations = 0;
     let changedInPass = true;
@@ -1093,8 +1082,8 @@
       console.log(`[Iter ${totalIterations}] Start`)
 
       // Check points from index 1 up to length - 2.
-      for (let i = 1; i < points.length - 1; i++) {
-        const pPrev = points[i - 1];
+      for (let i = 0; i < points.length - 1; i++) {
+        const pPrev = (i === 0) ? points[points.length - 2] : points[i - 1];
         const pCurr = points[i];
         const pNext = points[i + 1];
 
@@ -1103,9 +1092,8 @@
         console.log(`[Point ${i}] Angle:`, angle.toFixed(4))
 
         // Check if the angle is in the target normalization ranges
-        const inRange1 = angle >= 75.0 && angle <= 89.5;
-        const inRange2 = angle >= 90.5 && angle <= 105.0;
-
+        const inRange1 = angle >= 75.0 && angle <= 89.9;
+        const inRange2 = angle >= 90.1 && angle <= 105.0;
 
         if (inRange1 || inRange2) {
 
