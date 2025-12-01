@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.9.3
+// @version      0.10.0
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -46,6 +46,11 @@
     'en': {
       title: 'POI Geometry',
       description: 'Change geometry in the current view area',
+      options: {
+        title: 'Navigation Points',
+        navigationPoint: 'Highlight entrance for selected place',
+        navigationPointOnHover: 'Highlight entrance on hover',
+      },
       warning: '⚠️ This option is available for editors with a rank higher than ' + REQUIRED_LEVEL,
       help: 'You can use the <strong>Keyboard shortcuts</strong> to apply the settings. It\'s more convenient than clicking on the buttons.',
       orthogonalize: 'Orthogonalize',
@@ -61,6 +66,11 @@
     'uk': {
       title: 'Геометрія POI',
       description: 'Змінити геометрію об’єктів у поточному розташуванні',
+      options: {
+        title: 'Точки навігації',
+        navigationPoint: 'Підсвічувати навігацію до місця',
+        navigationPointOnHover: 'Підсвічувати навігацію за наведенням мишки',
+      },
       warning: '⚠️ Ця опція доступна лише для редакторів з рангом вищім ніж ' + REQUIRED_LEVEL,
       help: 'Використовуйте <strong>гарячі клавіши</strong>, це значно швидше ніж використовувати кнопки',
       orthogonalize: 'Вирівняти',
@@ -76,6 +86,11 @@
     'ru': {
       title: 'Геометрия POI',
       description: 'Изменить геометрию объектов в текущем расположении',
+      options: {
+        title: 'Точки навигации',
+        navigationPoint: 'Показывать навигацию до выбранного места',
+        navigationPointOnHover: 'Подсвечивать навигацию при наведении мыши',
+      },
       warning: '⚠️ Эта опция доступна для редакторов с рангов выше ' + REQUIRED_LEVEL,
       help: 'Используйте <strong>комбинации клавиш</strong>, и не надо будет клацать кнопки',
       orthogonalize: 'Выровнять',
@@ -89,6 +104,32 @@
       about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
     }
   }
+  const SETTINGS = {
+    options: {
+      navigationPoint: true,
+      navigationPointOnHover: false,
+    },
+  }
+
+  const TYPES = {
+    street: 1,
+    primary: 2,
+    freeway: 3,
+    ramp: 4,
+    trail: 5,
+    major: 6,
+    minor: 7,
+    offroad: 8,
+    walkway: 9,
+    boardwalk: 10,
+    ferry: 15,
+    stairway: 16,
+    private: 17,
+    railroad: 18,
+    runway: 19,
+    parking: 20,
+    narrow: 22
+  }
 
   WMEUI.addTranslation(NAME, TRANSLATION)
 
@@ -99,6 +140,17 @@
     '.e40 button.e40 { width:44px;margin:0;padding:2px;display:flex;justify-content:center;border:1px solid #eee;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:nowrap;color:#333; flex-wrap: wrap; align-content: center;} ' +
     '.e40 button.e40:hover { box-shadow:0 2px 8px 0 rgba(0,0,0,.1),inset 0 0 100px 100px rgba(255,255,255,.3) } ' +
     '.e40 button.e40-M, .e40 button.e40-N, .e40 button.e40-O, .e40 button.e40-P, .e40 button.e40-R, .e40 button.e40-S { min-height: 50px; } ' +
+
+    '.form-group.e40 legend { cursor:pointer; font-size: 12px; font-weight: bold; width: auto; text-align: right; border: 0; margin: 0; padding: 0 8px; }' +
+    '.form-group.e40 fieldset { border: 1px solid #ddd; padding: 8px; width: 100%; margin-bottom: 16px; }' +
+
+    'section.tab-pane .form-group.e40 div.controls { display: block; padding: 8px; }' +
+    'section.tab-pane .form-group.e40 div.controls:empty, #panel-container .archive-panel .body:empty { min-height: 20px; }' +
+    'section.tab-pane .form-group.e40 div.controls:empty::after, #panel-container .archive-panel .body:empty::after { color: #ccc; padding: 0 8px; content: "' + I18n.t(NAME).notFound + '" }' +
+    'section.tab-pane .form-group.e40 div.controls label { white-space: normal; font-weight: normal; margin-top: 5px; line-height: 18px; font-size: 13px; }' +
+    'section.tab-pane .form-group.e40 div.controls input[type="text"] { float:right; }' +
+    'section.tab-pane .form-group.e40 div.controls input[type="number"] { float:right; width: 60px; text-align:right; }' +
+
     '#sidebar p.e40 { width: 100%; }' +
     '#sidebar p.e40-info { border-top: 1px solid #ccc; color: #777; font-size: x-small; margin-top: 15px; padding-top: 10px; text-align: center; }' +
     '#sidebar p.e40-warning { color: #f77 }' +
@@ -106,6 +158,43 @@
     '#sidebar p.e40-yellow { background-color:#FFDD00;color:black;height:32px;text-align:center;line-height:32px;font-size:24px;margin:0; }'
 
   WMEUI.addStyle(STYLE)
+
+  const layerConfig = {
+    styleContext: {},
+    styleRules: [
+      {
+        predicate: (properties) => properties.styleName === "styleNode",
+        style: {
+          pointRadius: 4,
+          fillColor: '#ffffff',
+          strokeColor: '#14e2d9',
+          strokeWidth: 3,
+          strokeLinecap: 'round',
+          // graphicName: 'x',
+          graphicZIndex: 9999,
+        },
+      },
+      {
+        predicate: (properties) => properties.styleName === "styleLine",
+        style: {
+          strokeWidth: 3,
+          strokeColor: '#14e2d9',
+          strokeLinecap: 'round',
+          graphicZIndex: 9999,
+        }
+      },
+      {
+        predicate: (properties) => properties.styleName === "styleDashedLine",
+        style: {
+          strokeWidth: 2,
+          strokeColor: '#ffffff',
+          strokeLinecap: 'round',
+          strokeDashstyle: 'dash',
+          graphicZIndex: 9999,
+        }
+      }
+    ],
+  };
 
   // https://fontawesome.com/v4/icons/
   const placeButtons = {
@@ -245,8 +334,8 @@
   }
 
   class E40 extends WMEBase {
-    constructor (name, tabButtons, placeButtons, pointButtons) {
-      super(name)
+    constructor (name, settings, tabButtons, placeButtons, pointButtons) {
+      super(name, settings)
 
       this.initHelper()
 
@@ -257,6 +346,10 @@
       this.initShortcuts(placeButtons)
 
       this.initPointPanel(pointButtons)
+
+      this.initLayer()
+
+      this.initHandlers()
     }
 
     initHelper() {
@@ -271,13 +364,32 @@
           image: GM_info.script.icon
         }
       )
+
       tab.addText('description', I18n.t(this.name).description)
       if (this.wmeSDK.State.getUserInfo().rank >= REQUIRED_LEVEL) {
         tab.addButtons(buttons)
       } else {
         tab.addText('warning', I18n.t(this.name).warning)
       }
+
+      // Setup options
+      /** @type {WMEUIHelperFieldset} */
+      let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title)
+      let options = this.settings.get('options')
+      for (let item in options) {
+        if (options.hasOwnProperty(item)) {
+          fsOptions.addCheckbox(
+            item,
+            I18n.t(this.name).options[item],
+            (event) => this.settings.set(['options', item], event.target.checked),
+            this.settings.get('options', item)
+          )
+        }
+      }
+      tab.addElement(fsOptions)
+
       tab.addDiv('text', I18n.t(this.name).help)
+
       tab.addText(
         'info',
         '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version
@@ -323,6 +435,145 @@
       }
     }
 
+    initLayer () {
+      this.wmeSDK.Map.addLayer({
+        layerName: this.name,
+        styleRules: layerConfig.styleRules,
+        styleContext: layerConfig.styleContext
+      });
+      // this.wmeSDK.LayerSwitcher.addLayerCheckbox({ name: this.name });
+      // this.wmeSDK.Map.setLayerZIndex({ layerName: this.name, zIndex: 9999 });
+      this.wmeSDK.Map.setLayerVisibility({ layerName: this.name, visibility: false });
+    }
+
+    initHandlers (buttons, config) {
+      this.wmeSDK.Events.on({
+        eventName: "wme-data-model-objects-changed",
+        eventHandler: ({dataModelName, objectIds}) => {
+          this.refreshPanel()
+        }
+      });
+
+      if (this.settings.get('options', 'navigationPointOnHover') ) {
+
+        this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" });
+
+        if (this.settings.get('options', 'navigationPointOnHover')) {
+          this.wmeSDK.Events.on({
+            eventName: "wme-layer-feature-mouse-enter",
+            eventHandler: ({ featureId, layerName }) => {
+              this.showVector(featureId)
+            },
+          });
+
+          this.wmeSDK.Events.on({
+            eventName: "wme-layer-feature-mouse-leave",
+            eventHandler: ({ featureId, layerName }) => {
+              this.removeVectors()
+            },
+          });
+        }
+      }
+    }
+
+    showVector (featureId) {
+      let venue = this.wmeSDK.DataModel.Venues.getById({ venueId : featureId })
+
+      let center, entrance, intersection, intersectionDistance
+
+      if (venue.geometry.type === 'Polygon') {
+        center = turf.centroid(venue.geometry).geometry.coordinates
+      } else {
+        center = venue.geometry.coordinates
+      }
+
+      if (venue.navigationPoints.length) {
+        entrance = venue.navigationPoints[0].point.coordinates
+        this.createVector(center, entrance, 'styleDashedLine')
+        this.showLayer()
+      } else {
+        entrance = center
+      }
+
+      let segments = this.wmeSDK.DataModel.Segments.getAll()
+      let except = [TYPES.boardwalk, TYPES.stairway, TYPES.railroad, TYPES.runway]
+
+      segments = segments.filter(segment => except.indexOf(segment.roadType) === -1)
+
+      for (let i = 0; i < segments.length; i++) {
+        let segment = segments[i]
+
+        let nearestPoint = turf.nearestPointOnLine(segment.geometry, entrance)
+
+        let distance = turf.distance(
+          nearestPoint,
+          entrance,
+          {
+            units: 'meters'
+          }
+        )
+
+        if (intersectionDistance === undefined || distance < intersectionDistance) {
+          intersectionDistance = distance
+          intersection = nearestPoint.geometry.coordinates
+        }
+      }
+
+      if (intersection) {
+        this.createVector(entrance, intersection, 'styleLine')
+        this.showLayer()
+      }
+    }
+
+    /**
+     * Create the vector by coordinates
+     * @param {[Number,Number]} from coordinates
+     * @param {[Number,Number]} to coordinates
+     * @param {String} styleName style name
+     */
+    createVector (from, to, styleName = 'styleLine') {
+      const A = turf.point(from, { styleName: "styleNode" }, { id: `node_${from[0]}_${from[1]}` });
+      const B = turf.point(to, { styleName: "styleNode" }, { id: `node_${to[0]}_${to[1]}` });
+
+      this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: A });
+      this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: B });
+
+      const lineCoordinates = [
+        A.geometry.coordinates,
+        B.geometry.coordinates,
+      ];
+
+      // https://www.waze.com/editor/sdk/interfaces/index.SDK.FeatureStyle.html
+      const line = turf.lineString(lineCoordinates, {
+        styleName: styleName,
+      }, { id: `line_${from[0]}_${from[1]}_${to[0]}_${to[1]}` });
+
+      this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: line });
+    }
+
+    /**
+     * Remove all vectors from the layer
+     */
+    removeVectors () {
+      this.wmeSDK.Map.removeAllFeaturesFromLayer({ layerName: this.name });
+
+      this.hideLayer()
+    }
+
+    /**
+     * Show the Layer
+     */
+    showLayer () {
+      this.wmeSDK.Map.setLayerVisibility({ layerName: this.name, visibility: true });
+    }
+
+    /**
+     * Hide the Layer
+     */
+    hideLayer () {
+      this.wmeSDK.Map.setLayerVisibility({ layerName: this.name, visibility: false });
+    }
+
     /**
      * Handler for `place.wme` event
      * @param {jQuery.Event} event
@@ -347,6 +598,19 @@
       }
     }
 
+
+    /**
+     * Handler for `venue.wme` event
+     * @param {jQuery.Event} event
+     * @param {HTMLElement} element
+     * @param {Venue} model
+     */
+    onVenue (event, element, model) {
+      if (this.settings.get('options', 'navigationPoint')) {
+        this.showVector(model.id)
+      }
+    }
+
     /**
      * Handler for `venues.wme` event
      * @param {jQuery.Event} event
@@ -367,6 +631,10 @@
       }
     }
 
+    onNone() {
+      this.removeVectors()
+    }
+
     /**
      * @param {String[]} except
      * @return {Venue[]} models
@@ -385,7 +653,7 @@
     }
 
     /**
-     * Create panel with buttons
+     * Create the panel with buttons
      * @param event
      * @param {HTMLElement} element
      */
@@ -730,7 +998,7 @@
   let E40Instance
 
   $(document).on('bootstrap.wme', () => {
-    E40Instance = new E40(NAME, tabButtons, placeButtons, pointButtons)
+    E40Instance = new E40(NAME, SETTINGS, tabButtons, placeButtons, pointButtons)
 
     E40Instance.wmeSDK.Events.trackDataModelEvents({ dataModelName: "venues" })
     E40Instance.wmeSDK.Events.on({
