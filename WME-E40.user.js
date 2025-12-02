@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.0
+// @version      0.10.1
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -451,6 +451,18 @@
         eventName: "wme-data-model-objects-changed",
         eventHandler: ({dataModelName, objectIds}) => {
           this.refreshPanel()
+
+          let selected = this.getSelectedVenue()
+
+          if (
+            dataModelName === 'venues'
+            && objectIds.length > 0
+            && objectIds.indexOf(selected.id) !== -1
+            && this.settings.get('options', 'navigationPoint')
+          ) {
+            this.removeVectors()
+            this.showVector(selected.id)
+          }
         }
       });
 
@@ -597,7 +609,6 @@
         this.createPointPanel(event, element)
       }
     }
-
 
     /**
      * Handler for `venue.wme` event
