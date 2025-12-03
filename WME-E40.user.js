@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.2
+// @version      0.10.3
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -452,6 +452,7 @@
     }
 
     initHandlers () {
+      this.wmeSDK.Events.trackDataModelEvents({ dataModelName: "venues" });
       this.wmeSDK.Events.on({
         eventName: "wme-data-model-objects-changed",
         eventHandler: ({dataModelName, objectIds}) => {
@@ -461,6 +462,7 @@
 
           if (
             dataModelName === 'venues'
+            && selected
             && objectIds.length > 0
             && objectIds.indexOf(selected.id) !== -1
             && this.settings.get('options', 'navigationPoint')
@@ -471,28 +473,25 @@
         }
       });
 
-      if (this.settings.get('options', 'navigationPointOnHover') ) {
-
+      if (this.settings.get('options', 'navigationPointOnHover')) {
         this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" });
 
-        if (this.settings.get('options', 'navigationPointOnHover')) {
-          this.wmeSDK.Events.on({
-            eventName: "wme-layer-feature-mouse-enter",
-            eventHandler: ({ featureId }) => {
-              this.showVector(featureId)
-            },
-          });
+        this.wmeSDK.Events.on({
+          eventName: "wme-layer-feature-mouse-enter",
+          eventHandler: ({ featureId }) => {
+            this.showVector(featureId)
+          },
+        });
 
-          this.wmeSDK.Events.on({
-            eventName: "wme-layer-feature-mouse-leave",
-            eventHandler: ({ featureId }) => {
-              let selected = this.getSelectedVenue()
-              if (selected?.id !== featureId) {
-                this.removeVector(featureId)
-              }
-            },
-          });
-        }
+        this.wmeSDK.Events.on({
+          eventName: "wme-layer-feature-mouse-leave",
+          eventHandler: ({ featureId }) => {
+            let selected = this.getSelectedVenue()
+            if (selected?.id !== featureId) {
+              this.removeVector(featureId)
+            }
+          },
+        });
       }
     }
 
@@ -594,8 +593,6 @@
      */
     removeVectors () {
       this.wmeSDK.Map.removeAllFeaturesFromLayer({ layerName: this.name });
-
-      this.hideLayer()
     }
 
     /**
@@ -668,8 +665,13 @@
       }
     }
 
+    /**
+     * Handler for `none.wme` event
+     * @return {Null}
+     */
     onNone() {
       this.removeVectors()
+      this.hideLayer()
     }
 
     /**
@@ -704,7 +706,7 @@
     }
 
     /**
-     * Create panel with buttons
+     * Create the panel with buttons
      * @param event
      * @param {HTMLElement} element
      */
@@ -1425,7 +1427,6 @@
       coordinates: [points]
     };
   }
-
 
   /**
    * A utility class for spherical geometry (geodesy).
