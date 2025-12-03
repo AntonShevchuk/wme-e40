@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.1
+// @version      0.10.2
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -27,7 +27,7 @@
 /* global require */
 /* global $, jQuery */
 /* global I18n */
-/* global WMEBase, WMEUI, WMEUIHelper */
+/* global WMEBase, WMEUI, WMEUIHelper, WMEUIHelperFieldset */
 /* global Container, Settings, SimpleCache, Tools */
 /* global Node$1, Segment, Venue, VenueAddress, WmeSDK */
 /* global turf */
@@ -352,10 +352,18 @@
       this.initHandlers()
     }
 
+    /**
+     * Initializes the helper instance for the class
+     * by creating a new WMEUIHelper object.
+     */
     initHelper() {
       this.helper = new WMEUIHelper(this.name)
     }
 
+    /**
+     * Initialize the tab with buttons
+     * @param {Object} buttons
+     */
     initTab (buttons) {
       let tab = this.helper.createTab(
         I18n.t(this.name).title,
@@ -372,7 +380,6 @@
         tab.addText('warning', I18n.t(this.name).warning)
       }
 
-      // Setup options
       /** @type {WMEUIHelperFieldset} */
       let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title)
       let options = this.settings.get('options')
@@ -441,12 +448,10 @@
         styleRules: layerConfig.styleRules,
         styleContext: layerConfig.styleContext
       });
-      // this.wmeSDK.LayerSwitcher.addLayerCheckbox({ name: this.name });
-      // this.wmeSDK.Map.setLayerZIndex({ layerName: this.name, zIndex: 9999 });
       this.wmeSDK.Map.setLayerVisibility({ layerName: this.name, visibility: false });
     }
 
-    initHandlers (buttons, config) {
+    initHandlers () {
       this.wmeSDK.Events.on({
         eventName: "wme-data-model-objects-changed",
         eventHandler: ({dataModelName, objectIds}) => {
@@ -473,15 +478,18 @@
         if (this.settings.get('options', 'navigationPointOnHover')) {
           this.wmeSDK.Events.on({
             eventName: "wme-layer-feature-mouse-enter",
-            eventHandler: ({ featureId, layerName }) => {
+            eventHandler: ({ featureId }) => {
               this.showVector(featureId)
             },
           });
 
           this.wmeSDK.Events.on({
             eventName: "wme-layer-feature-mouse-leave",
-            eventHandler: ({ featureId, layerName }) => {
-              this.removeVectors()
+            eventHandler: ({ featureId }) => {
+              let selected = this.getSelectedVenue()
+              if (selected?.id !== featureId) {
+                this.removeVector(featureId)
+              }
             },
           });
         }
@@ -501,7 +509,7 @@
 
       if (venue.navigationPoints.length) {
         entrance = venue.navigationPoints[0].point.coordinates
-        this.createVector(center, entrance, 'styleDashedLine')
+        this.createVector(featureId, center, entrance, 'styleDashedLine')
         this.showLayer()
       } else {
         entrance = center
@@ -532,20 +540,21 @@
       }
 
       if (intersection) {
-        this.createVector(entrance, intersection, 'styleLine')
+        this.createVector(featureId, entrance, intersection, 'styleLine')
         this.showLayer()
       }
     }
 
     /**
      * Create the vector by coordinates
+     * @param {String} featureId
      * @param {[Number,Number]} from coordinates
      * @param {[Number,Number]} to coordinates
      * @param {String} styleName style name
      */
-    createVector (from, to, styleName = 'styleLine') {
-      const A = turf.point(from, { styleName: "styleNode" }, { id: `node_${from[0]}_${from[1]}` });
-      const B = turf.point(to, { styleName: "styleNode" }, { id: `node_${to[0]}_${to[1]}` });
+    createVector (featureId, from, to, styleName = 'styleLine') {
+      const A = turf.point(from, { styleName: "styleNode" }, { id: `${styleName}_from_${featureId}` });
+      const B = turf.point(to, { styleName: "styleNode" }, { id: `${styleName}_to_${featureId}` });
 
       this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: A });
       this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: B });
@@ -558,9 +567,26 @@
       // https://www.waze.com/editor/sdk/interfaces/index.SDK.FeatureStyle.html
       const line = turf.lineString(lineCoordinates, {
         styleName: styleName,
-      }, { id: `line_${from[0]}_${from[1]}_${to[0]}_${to[1]}` });
+      }, { id: `${styleName}_line_${featureId}` });
 
       this.wmeSDK.Map.addFeatureToLayer({ layerName: this.name, feature: line });
+    }
+
+    /**
+     * Remove all vectors from the layer
+     */
+    removeVector (featureId) {
+      this.wmeSDK.Map.removeFeaturesFromLayer({
+        layerName: this.name,
+        featureIds: [
+          `styleLine_from_${featureId}`,
+          `styleLine_to_${featureId}`,
+          `styleLine_line_${featureId}`,
+          `styleDashedLine_from_${featureId}`,
+          `styleDashedLine_to_${featureId}`,
+          `styleDashedLine_line_${featureId}`,
+        ]
+      });
     }
 
     /**
@@ -1010,16 +1036,6 @@
 
   $(document).on('bootstrap.wme', () => {
     E40Instance = new E40(NAME, SETTINGS, tabButtons, placeButtons, pointButtons)
-
-    E40Instance.wmeSDK.Events.trackDataModelEvents({ dataModelName: "venues" })
-    E40Instance.wmeSDK.Events.on({
-      eventName: "wme-data-model-objects-changed",
-      eventHandler: ({dataModelName, objectIds}) => {
-        // console.log(dataModelName)
-        // console.log(objectIds)
-        E40Instance.refreshPanel()
-      }
-    });
   })
 
   /**
@@ -1264,7 +1280,7 @@
     // by using the `turf/transformScale` on a unit square. However, this is more complex.
 
     // A common and practical approximation for *small* areas:
-    const [lon, lat] = centerPoint.coordinates;
+    // const [lon, lat] = centerPoint.coordinates;
 
     // For simplicity, we'll use an approximation based on latitude/longitude differences.
     // WARNING: This approximation is only accurate for very small areas or near the equator.
