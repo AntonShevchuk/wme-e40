@@ -623,8 +623,6 @@
     removeVector (venue) {
       let featureIds = []
 
-      console.log(venue)
-
       if (venue.navigationPoints?.length) {
         for (let i = 0; i < venue.navigationPoints.length; i++) {
           let featureId = venue.id + '_' + i
