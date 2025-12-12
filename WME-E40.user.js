@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.3
+// @version      0.10.4
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -49,6 +49,7 @@
       options: {
         title: 'Navigation Points',
         navigationPoint: 'Highlight entrance for selected place',
+        navigationPointAll: 'Highlight all entrances for selected place',
         navigationPointOnHover: 'Highlight entrance on hover',
       },
       warning: '⚠️ This option is available for editors with a rank higher than ' + REQUIRED_LEVEL,
@@ -69,6 +70,7 @@
       options: {
         title: 'Точки навігації',
         navigationPoint: 'Підсвічувати навігацію до місця',
+        navigationPointAll: 'Підсвічувати навігацію до всіх точок входу',
         navigationPointOnHover: 'Підсвічувати навігацію за наведенням мишки',
       },
       warning: '⚠️ Ця опція доступна лише для редакторів з рангом вищім ніж ' + REQUIRED_LEVEL,
@@ -89,6 +91,7 @@
       options: {
         title: 'Точки навигации',
         navigationPoint: 'Показывать навигацию до выбранного места',
+        navigationPointAll: 'Показывать навигацию ко всем точкам входа',
         navigationPointOnHover: 'Подсвечивать навигацию при наведении мыши',
       },
       warning: '⚠️ Эта опция доступна для редакторов с рангов выше ' + REQUIRED_LEVEL,
@@ -107,6 +110,7 @@
   const SETTINGS = {
     options: {
       navigationPoint: true,
+      navigationPointAll: false,
       navigationPointOnHover: false,
     },
   }
@@ -184,9 +188,28 @@
         }
       },
       {
+        predicate: (properties) => properties.styleName === "styleSecondaryLine",
+        style: {
+          strokeWidth: 2,
+          strokeColor: '#ffffff',
+          strokeLinecap: 'round',
+          graphicZIndex: 9999,
+        }
+      },
+      {
         predicate: (properties) => properties.styleName === "styleDashedLine",
         style: {
           strokeWidth: 2,
+          strokeColor: '#ffffff',
+          strokeLinecap: 'round',
+          strokeDashstyle: 'dash',
+          graphicZIndex: 9999,
+        }
+      },
+      {
+        predicate: (properties) => properties.styleName === "styleDashedSecondaryLine",
+        style: {
+          strokeWidth: 1,
           strokeColor: '#ffffff',
           strokeLinecap: 'round',
           strokeDashstyle: 'dash',
@@ -488,7 +511,9 @@
           eventHandler: ({ featureId }) => {
             let selected = this.getSelectedVenue()
             if (selected?.id !== featureId) {
-              this.removeVector(featureId)
+              this.removeVector(
+                this.wmeSDK.DataModel.Venues.getById({ venueId : featureId })
+              )
             }
           },
         });
@@ -506,42 +531,63 @@
         center = venue.geometry.coordinates
       }
 
-      if (venue.navigationPoints.length) {
-        entrance = venue.navigationPoints[0].point.coordinates
-        this.createVector(featureId, center, entrance, 'styleDashedLine')
-        this.showLayer()
-      } else {
-        entrance = center
-      }
-
       let segments = this.wmeSDK.DataModel.Segments.getAll()
       let except = [TYPES.boardwalk, TYPES.stairway, TYPES.railroad, TYPES.runway]
 
       segments = segments.filter(segment => except.indexOf(segment.roadType) === -1)
 
+      if (venue.navigationPoints.length) {
+
+        for (let i = 0; i < venue.navigationPoints.length; i++) {
+          let point = venue.navigationPoints[i].point.coordinates
+          let nearestPoint = this.findNearestPoint(segments, point)
+
+          this.createVector(featureId + '_' + i, center, point, (i === 0) ? 'styleDashedLine' : 'styleDashedSecondaryLine')
+          this.createVector(featureId + '_' + i, point, nearestPoint, (i === 0) ? 'styleLine' : 'styleSecondaryLine')
+
+          if (i === 0
+            && !this.settings.get('options', 'navigationPointAll')) {
+            break
+          }
+        }
+
+      } else {
+        let nearestPoint = this.findNearestPoint(segments, center)
+        this.createVector(featureId, center, nearestPoint, 'styleLine')
+      }
+      this.showLayer()
+    }
+
+    /**
+     * Finds the nearest point to a given point from a set of segments.
+     *
+     * @param {Array} segments - An array of segments where each segment contains a geometry property representing a line.
+     * @param {Object} point - The reference point to find the nearest point to.
+     * @return {Array} An array representing the coordinates of the nearest point to the given point.
+     */
+    findNearestPoint(segments, point) {
+      let nearestPoint, nearestPointCoordinates = [], nearestPointDistance
+
       for (let i = 0; i < segments.length; i++) {
         let segment = segments[i]
 
-        let nearestPoint = turf.nearestPointOnLine(segment.geometry, entrance)
+        nearestPoint = turf.nearestPointOnLine(segment.geometry, point)
 
         let distance = turf.distance(
           nearestPoint,
-          entrance,
+          point,
           {
             units: 'meters'
           }
         )
 
-        if (intersectionDistance === undefined || distance < intersectionDistance) {
-          intersectionDistance = distance
-          intersection = nearestPoint.geometry.coordinates
+        if (nearestPointDistance === undefined || distance < nearestPointDistance) {
+          nearestPointDistance = distance
+          nearestPointCoordinates = nearestPoint.geometry.coordinates
         }
       }
 
-      if (intersection) {
-        this.createVector(featureId, entrance, intersection, 'styleLine')
-        this.showLayer()
-      }
+      return nearestPointCoordinates
     }
 
     /**
@@ -572,20 +618,43 @@
     }
 
     /**
-     * Remove all vectors from the layer
+     * Remove all vectors from the layer for the current venue
      */
-    removeVector (featureId) {
-      this.wmeSDK.Map.removeFeaturesFromLayer({
-        layerName: this.name,
-        featureIds: [
+    removeVector (venue) {
+      let featureIds = []
+
+      console.log(venue)
+
+      if (venue.navigationPoints?.length) {
+        for (let i = 0; i < venue.navigationPoints.length; i++) {
+          let featureId = venue.id + '_' + i
+
+          if (i === 0) {
+            featureIds.push(`styleLine_from_${featureId}`)
+            featureIds.push(`styleLine_to_${featureId}`)
+            featureIds.push(`styleLine_line_${featureId}`)
+            featureIds.push(`styleDashedLine_from_${featureId}`)
+            featureIds.push(`styleDashedLine_to_${featureId}`)
+            featureIds.push(`styleDashedLine_line_${featureId}`)
+          } else {
+            featureIds.push(`styleSecondaryLine_from_${featureId}`)
+            featureIds.push(`styleSecondaryLine_to_${featureId}`)
+            featureIds.push(`styleSecondaryLine_line_${featureId}`)
+            featureIds.push(`styleDashedSecondaryLine_from_${featureId}`)
+            featureIds.push(`styleDashedSecondaryLine_to_${featureId}`)
+            featureIds.push(`styleDashedSecondaryLine_line_${featureId}`)
+          }
+        }
+      } else {
+        let featureId = venue.id
+        featureIds = [
           `styleLine_from_${featureId}`,
           `styleLine_to_${featureId}`,
           `styleLine_line_${featureId}`,
-          `styleDashedLine_from_${featureId}`,
-          `styleDashedLine_to_${featureId}`,
-          `styleDashedLine_line_${featureId}`,
         ]
-      });
+      }
+
+      this.wmeSDK.Map.removeFeaturesFromLayer({ layerName: this.name, featureIds });
     }
 
     /**
