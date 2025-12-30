@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.4
+// @version      0.10.5
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -571,19 +571,23 @@
       for (let i = 0; i < segments.length; i++) {
         let segment = segments[i]
 
-        nearestPoint = turf.nearestPointOnLine(segment.geometry, point)
+        try {
+          nearestPoint = turf.nearestPointOnLine(segment.geometry, point)
 
-        let distance = turf.distance(
-          nearestPoint,
-          point,
-          {
-            units: 'meters'
+          let distance = turf.distance(
+            nearestPoint,
+            point,
+            {
+              units: 'meters'
+            }
+          )
+
+          if (nearestPointDistance === undefined || distance < nearestPointDistance) {
+            nearestPointDistance = distance
+            nearestPointCoordinates = nearestPoint.geometry.coordinates
           }
-        )
-
-        if (nearestPointDistance === undefined || distance < nearestPointDistance) {
-          nearestPointDistance = distance
-          nearestPointCoordinates = nearestPoint.geometry.coordinates
+        } catch (e) {
+          this.log('Error while finding nearest point')
         }
       }
 
