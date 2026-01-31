@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.10.5
+// @version      0.10.6
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -892,6 +892,8 @@
               venueId: elements[i].id, geometry
             })
             total++
+          } else {
+            this.log('The geometry is the same as before, skipped')
           }
         } catch (e) {
           this.log('skipped', e)
@@ -1096,8 +1098,8 @@
         return false
       }
       for (let i = 0; i < coordinates1.length; i++) {
-        if (Math.abs(coordinates1[i][0] - coordinates2[i][0]) > .00001
-          || Math.abs(coordinates1[i][1] - coordinates2[i][1]) > .00001) {
+        if (Math.abs(coordinates1[i][0] - coordinates2[i][0]) > .000001
+          || Math.abs(coordinates1[i][1] - coordinates2[i][1]) > .000001) {
           return false
         }
       }
@@ -1641,64 +1643,61 @@
     }
 
     /**
-     * Finds the intersection of two great-circle paths.
-     * Path 1: Defined by p1 and p2.
-     * Path 2: Defined by p3 and an internal angle at p3.
+     * Finds a point D on the great circle path AB such that the angle ADC equals the specified angle.
      *
-     * @param {[number,number]} p1 - First point of Line 1 [lon, lat].
-     * @param {[number,number]} p2 - Second point of Line 1 [lon, lat].
-     * @param {[number,number]} p3 - Start point of Line 2 [lon, lat].
-     * @param {number} angle - The SIGNED internal angle at p2 (in degrees).
-     * @returns {[number,number] | null} The intersection point [lon, lat], or null if lines are parallel.
+     * @param {[number,number]} pA - Start of line [lon, lat]
+     * @param {[number,number]} pB - End of line [lon, lat]
+     * @param {[number,number]} pC - The third point [lon, lat]
+     * @param {number} angle - The desired intersection angle at D in degrees (e.g., 90 for perpendicular).
+     * @returns {[number,number] | null} The coordinates of D, or null if no such intersection exists.
      */
-    static findIntersection(p1, p2, p3, angle) {
-      // 1. Define the triangle P1-P3-X (A-C-B)
-      //    A = p1, C = p3, B = X (intersection)
+    static findIntersection(pA, pB, pC, angle) {
+      const angleRad = GeoUtils._toRadians(angle);
 
-      // 2. Find known bearings
-      const brng1_2 = GeoUtils.getBearing(p1, p2); // Bearing of Line 1
-      const brng1_3 = GeoUtils.getBearing(p1, p3); // Bearing from p1 to p3
+      // 1. Calculate Angle A (difference in bearings)
+      const bearingAB = GeoUtils.getBearing(pA, pB);
+      const bearingAC = GeoUtils.getBearing(pA, pC);
+      const angleA_rad = GeoUtils._toRadians(bearingAC - bearingAB);
 
-      // 3. Calculate internal angles A (at p1) and C (at p3)
-      const angleA = GeoUtils._normalizeAngle(brng1_2 - brng1_3);
-      const angleB = angle
-      const angleC = GeoUtils._normalizeAngle(180 - angleA - angleB)
+      // 2. Calculate Side b (distance AC)
+      const distb_rad = GeoUtils.getAngularDistance(pA, pC);
 
-      // 4. Calculate known side b (angular distance p1-p3)
-      const dist_b = GeoUtils.getAngularDistance(p1, p3); // in radians
+      // 3. Solve for distance AD (Side c) using the Four-Part Formula (Cotangent Law)
+      // The relation for parts (Side b, Angle A, Side c, Angle D) is:
+      // sin(c) * cot(b) - cos(c) * cos(A) = sin(A) * cot(D)
 
-      // Check for parallel lines
-      if (Math.sin(GeoUtils._toRadians(angleA)) === 0 && Math.sin(GeoUtils._toRadians(angleC)) === 0) {
-        return null; // Collinear
+      // We solve this linear combination of sin(c) and cos(c) by transforming it into:
+      // R * sin(c - phi) = K
+
+      const cot_b = 1.0 / Math.tan(distb_rad);
+      const cot_D = 1.0 / Math.tan(angleRad);
+
+      // Coefficients for harmonic addition
+      // sin(c)*X - cos(c)*Y = Z
+      // X = cot_b, Y = cos(angleA), Z = sin(angleA) * cot_D
+      const X = cot_b;
+      const Y = Math.cos(angleA_rad);
+      const Z = Math.sin(angleA_rad) * cot_D;
+
+      // Calculate auxiliary angle phi and magnitude R
+      // We match form: R * sin(c - phi) = Z
+      // where R * cos(phi) = X and R * sin(phi) = Y
+      const R = Math.hypot(X, Y);
+      const phi = Math.atan2(Y, X); // atan2(y, x) -> atan2(cosA, cot_b)
+
+      // Check if solution exists (Z/R must be between -1 and 1)
+      const sin_c_minus_phi = Z / R;
+
+      if (Math.abs(sin_c_minus_phi) > 1) {
+        return null; // The requested angle is impossible to form (e.g., triangle inequality violation)
       }
 
-      // 5. Find internal angle B (at intersection X) using Law of Cosines for angles
-      const angleA_rad = GeoUtils._toRadians(angleA);
-      const angleB_rad = GeoUtils._toRadians(angleB);
-      const angleC_rad = GeoUtils._toRadians(angleC);
+      // 4. Calculate final distance c (distAD)
+      // c - phi = asin(...)
+      const distAD_rad = phi + Math.asin(sin_c_minus_phi);
 
-      // 5a. Find internal angle B (at intersection X) using Law of Cosines for angles
-      let cos_B = -Math.cos(angleA_rad) * Math.cos(angleC_rad) +
-        Math.sin(angleA_rad) * Math.sin(angleC_rad) * Math.cos(dist_b);
-      cos_B = Math.max(-1, Math.min(1, cos_B)); // Clamp
-      // angleB_rad = Math.acos(cos_B);
-
-      // Check for parallel/collinear lines (angleB is 0 or 180)
-      if (Math.abs(Math.sin(angleB_rad)) < 1e-9) {
-        return null;
-      }
-
-      // 5b. Find side c (distance p1-X) using Law of Cosines (NOT Sines)
-      //     cos(c) = (cos(C) + cos(A)cos(B)) / (sin(A)sin(B))
-      let cos_c = (Math.cos(angleC_rad) + Math.cos(angleA_rad) * cos_B) /
-        (Math.sin(angleA_rad) * Math.sin(angleB_rad));
-
-      cos_c = Math.max(-1, Math.min(1, cos_c)); // Clamp
-      const dist_c = Math.acos(cos_c); // This is dist_p1_X in radians
-
-      // 6. Calculate the final intersection point X
-      //    We have start (p1), bearing (brng1_X), and distance (dist_c)
-      return GeoUtils.getDestination(p1, brng1_2, dist_c);
+      // 5. Calculate coordinates of D
+      return GeoUtils.getDestination(pA, bearingAB, distAD_rad);
     }
 
     /**
