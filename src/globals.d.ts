@@ -48,6 +48,11 @@ declare const turf: any
 declare const Container: any
 declare const SimpleCache: any
 
+declare const GM_info: any
+
+declare const $: any
+declare const jQuery: any
+
 declare module '*.css' {
   const content: string
   export default content
