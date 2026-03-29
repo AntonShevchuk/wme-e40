@@ -1,0 +1,137 @@
+.e40 .controls {
+  display: grid;
+  grid-template-columns: repeat(6, 44px);
+  gap: 6px;
+  padding: 0;
+}
+
+.e40 .button-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  align-items: center;
+}
+
+.e40 .button-toolbar button.e40 {
+  min-height: 30px;
+  line-height: 25px;
+  margin-bottom: 16px;
+}
+
+.e40 button.e40 {
+  width: 44px;
+  margin: 0;
+  padding: 2px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid #eee;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  color: #333;
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+.e40 button.e40:hover {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1), inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+}
+
+.e40 button.e40-M,
+.e40 button.e40-N,
+.e40 button.e40-O,
+.e40 button.e40-P,
+.e40 button.e40-R,
+.e40 button.e40-S {
+  min-height: 50px;
+}
+
+.form-group.e40 legend {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  width: auto;
+  text-align: right;
+  border: 0;
+  margin: 0;
+  padding: 0 8px;
+}
+
+.form-group.e40 fieldset {
+  border: 1px solid #ddd;
+  padding: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+section.tab-pane .form-group.e40 div.controls {
+  display: block;
+  padding: 8px;
+}
+
+section.tab-pane .form-group.e40 div.controls:empty,
+#panel-container .archive-panel .body:empty {
+  min-height: 20px;
+}
+
+section.tab-pane .form-group.e40 div.controls:empty::after,
+#panel-container .archive-panel .body:empty::after {
+  color: #ccc;
+  padding: 0 8px;
+  content: "\2014";
+}
+
+section.tab-pane .form-group.e40 div.controls label {
+  white-space: normal;
+  font-weight: normal;
+  margin-top: 5px;
+  line-height: 18px;
+  font-size: 13px;
+}
+
+section.tab-pane .form-group.e40 div.controls input[type="text"] {
+  float: right;
+}
+
+section.tab-pane .form-group.e40 div.controls input[type="number"] {
+  float: right;
+  width: 60px;
+  text-align: right;
+}
+
+#sidebar p.e40 {
+  width: 100%;
+}
+
+#sidebar p.e40-info {
+  border-top: 1px solid #ccc;
+  color: #777;
+  font-size: x-small;
+  margin-top: 15px;
+  padding-top: 10px;
+  text-align: center;
+}
+
+#sidebar p.e40-warning {
+  color: #f77;
+}
+
+#sidebar p.e40-blue {
+  background-color: #0057B8;
+  color: white;
+  height: 32px;
+  text-align: center;
+  line-height: 32px;
+  font-size: 24px;
+  margin: 0;
+}
+
+#sidebar p.e40-yellow {
+  background-color: #FFDD00;
+  color: black;
+  height: 32px;
+  text-align: center;
+  line-height: 32px;
+  font-size: 24px;
+  margin: 0;
+}
