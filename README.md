@@ -10,6 +10,52 @@ Create additional panel with buttons for change Place geometry in one click.
 
 ![Change the geometry](example.gif)
 
+## Development
+
+### Install & Build
+
+```bash
+npm install
+npm run build       # one-off build → dist/WME-E40.user.js
+npm run watch       # rebuild on changes
+```
+
+### Project Structure
+
+Source is written in TypeScript under `src/`, built with Rollup into a single IIFE at `dist/WME-E40.user.js`.
+
+```
+src/
+├── meta.ts          # userscript header (comment block)
+├── style.css        # plain CSS
+├── globals.d.ts     # WME runtime globals
+├── translations.ts  # i18n (en, uk, ru)
+├── types.ts         # road type constants
+├── settings.ts      # default settings
+├── layers.ts        # navigation vector layer config
+├── buttons.ts       # button definitions (place, point, tab)
+├── geo-utils.ts     # GeoUtils — spherical geometry math
+├── geometry.ts      # polygon creation and manipulation
+├── e40.ts           # E40 class (main logic)
+├── helpers.ts       # standalone wrapper functions
+└── index.ts         # bootstrap entry point
+```
+
+### Module Guide
+
+| Module | Responsibility |
+|--------|----------------|
+| `translations.ts` | `NAME`, `REQUIRED_LEVEL`, `TRANSLATION` (3 languages) |
+| `types.ts` | Road type numeric constants (`TYPES.street`, `TYPES.freeway`, etc.) |
+| `settings.ts` | Default options (navigation point visibility) |
+| `layers.ts` | Layer style rules for navigation vector visualization |
+| `buttons.ts` | Three button sets: `getPlaceButtons()` (polygon tools), `getPointButtons()` (point-to-shape), `getTabButtons()` (batch operations for rank 3+) |
+| `geo-utils.ts` | `GeoUtils` class — bearing, angle, distance, intersection calculations on the sphere |
+| `geometry.ts` | `createCirclePolygon`, `createSquarePolygon`, `simplifyPolygon`, `normalizeRightAngles` |
+| `e40.ts` | `E40` class — UI panels, keyboard shortcuts, layer management, all geometry operations |
+| `helpers.ts` | Thin wrappers that delegate to the E40 instance (used by button callbacks) |
+| `index.ts` | Bootstrap — registers translations/CSS, creates E40 instance on `bootstrap.wme` |
+
 ## Shortcuts
 <table style="width:100%">
 <tr>
