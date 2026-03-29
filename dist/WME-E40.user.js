@@ -561,6 +561,10 @@
          * @returns {[number,number] | null} The coordinates of D, or null if no such intersection exists.
          */
         static findIntersection(pA, pB, pC, angle) {
+            // Guard: degenerate angle (0° or 180°) makes cot(D) undefined
+            if (angle % 180 === 0) {
+                return null;
+            }
             const angleRad = GeoUtils._toRadians(angle);
             // 1. Calculate Angle A (difference in bearings)
             const bearingAB = GeoUtils.getBearing(pA, pB);
@@ -568,6 +572,10 @@
             const angleA_rad = GeoUtils._toRadians(bearingAC - bearingAB);
             // 2. Calculate Side b (distance AC)
             const distb_rad = GeoUtils.getAngularDistance(pA, pC);
+            // Guard: pA and pC are the same point — cot(b) is undefined
+            if (distb_rad < 1e-12) {
+                return null;
+            }
             // 3. Solve for distance AD (Side c) using the Four-Part Formula (Cotangent Law)
             // The relation for parts (Side b, Angle A, Side c, Angle D) is:
             // sin(c) * cot(b) - cos(c) * cos(A) = sin(A) * cot(D)
@@ -627,7 +635,7 @@
             // b = distAC_rad (hypotenuse)
             // A = angleA_rad (known angle)
             const tan_c = Math.cos(angleA_rad) * Math.tan(distAC_rad);
-            const distAD_rad = Math.atan(tan_c);
+            const distAD_rad = Math.abs(Math.atan(tan_c));
             // 4. Determine the bearing from A to D
             // The bearing from A to D is the bearing from A to C, adjusted by the angle A.
             const bearingAC_deg = GeoUtils.getBearing(pA, pC);
