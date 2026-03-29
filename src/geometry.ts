@@ -1,5 +1,3 @@
-import { GeoUtils } from './geo-utils'
-
 /**
  * Creates a GeoJSON Polygon representing a circle centered at a given point
  * with a radius calculated from a desired area in square meters.

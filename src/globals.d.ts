@@ -128,6 +128,19 @@ declare const Container: any
 // External libraries (loaded via @require)
 declare const turf: any
 
+declare class GeoUtils {
+  static _toRadians(degrees: number): number
+  static _toDegrees(radians: number): number
+  static _normalizeAngle(degrees: number): number
+  static getBearing(pA: number[], pB: number[]): number
+  static findAngle(p1: number[], p2: number[], p3: number[]): number
+  static getDistance(pA: number[], pB: number[]): number
+  static getAngularDistance(pA: number[], pB: number[]): number
+  static getDestination(startPoint: number[], bearing: number, distanceRad: number): number[]
+  static findIntersection(pA: number[], pB: number[], pC: number[], angle: number): number[] | null
+  static findRightAngleIntersection(pA: number[], pB: number[], pC: number[]): number[]
+}
+
 // CSS module imports
 declare module '*.css' {
   const content: string
