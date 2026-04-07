@@ -620,20 +620,12 @@
     class E40 extends WMEBase {
         constructor(name, settings, tabButtons, placeButtons, pointButtons) {
             super(name, settings);
-            this.initHelper();
             this.initTab(tabButtons);
             this.initPlacePanel(placeButtons);
             this.initShortcuts(placeButtons);
             this.initPointPanel(pointButtons);
             this.initLayer();
             this.initHandlers();
-        }
-        /**
-         * Initializes the helper instance for the class
-         * by creating a new WMEUIHelper object.
-         */
-        initHelper() {
-            this.helper = new WMEUIHelper(this.name);
         }
         /**
          * Initialize the tab with buttons
@@ -685,17 +677,7 @@
                 if (buttons.hasOwnProperty(btn)) {
                     let button = buttons[btn];
                     if (button.hasOwnProperty('shortcut')) {
-                        let shortcut = {
-                            callback: button.callback,
-                            description: button.description,
-                            shortcutId: this.id + '-' + btn,
-                            shortcutKeys: button.shortcut,
-                        };
-                        if (shortcut.shortcutKeys && this.wmeSDK.Shortcuts.areShortcutKeysInUse({ shortcutKeys: shortcut.shortcutKeys })) {
-                            this.log('Shortcut already in use');
-                            shortcut.shortcutKeys = null;
-                        }
-                        this.wmeSDK.Shortcuts.createShortcut(shortcut);
+                        this.createShortcut(btn, button.description, button.shortcut, button.callback);
                     }
                 }
             }
@@ -884,7 +866,7 @@
          * @param {Venue} model
          */
         onPlace(event, element, model) {
-            if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+            if (this.canEditVenue(model)) {
                 this.createPlacePanel(event, element);
             }
         }
@@ -895,7 +877,7 @@
          * @param {Venue} model
          */
         onPoint(event, element, model) {
-            if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+            if (this.canEditVenue(model)) {
                 this.createPointPanel(event, element);
             }
         }
@@ -919,7 +901,7 @@
          */
         onVenues(event, element, models) {
             models = models.filter((model) => !model.isResidential
-                && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }));
+                && this.canEditVenue(model));
             if (models.length > 0) {
                 if (models[0].geometry.type === 'Polygon') {
                     this.createPlacePanel(event, element);

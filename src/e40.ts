@@ -4,14 +4,11 @@ import { layerConfig } from './layers'
 import { simplifyPolygon, normalizeRightAngles, createCirclePolygon, createSquarePolygon } from './geometry'
 
 export class E40 extends WMEBase {
-  helper: any
   placePanel: any
   pointPanel: any
 
   constructor (name: string, settings: any, tabButtons: any, placeButtons: any, pointButtons: any) {
     super(name, settings)
-
-    this.initHelper()
 
     this.initTab(tabButtons)
 
@@ -24,14 +21,6 @@ export class E40 extends WMEBase {
     this.initLayer()
 
     this.initHandlers()
-  }
-
-  /**
-   * Initializes the helper instance for the class
-   * by creating a new WMEUIHelper object.
-   */
-  initHelper() {
-    this.helper = new WMEUIHelper(this.name)
   }
 
   /**
@@ -101,18 +90,7 @@ export class E40 extends WMEBase {
       if (buttons.hasOwnProperty(btn)) {
         let button = buttons[btn]
         if (button.hasOwnProperty('shortcut')) {
-          let shortcut: any = {
-            callback: button.callback,
-            description: button.description,
-            shortcutId: this.id + '-' + btn,
-            shortcutKeys: button.shortcut,
-          };
-
-          if (shortcut.shortcutKeys && this.wmeSDK.Shortcuts.areShortcutKeysInUse({ shortcutKeys: shortcut.shortcutKeys })) {
-            this.log('Shortcut already in use')
-            shortcut.shortcutKeys = null
-          }
-          this.wmeSDK.Shortcuts.createShortcut(shortcut);
+          this.createShortcut(btn, button.description, button.shortcut, button.callback)
         }
       }
     }
@@ -340,7 +318,7 @@ export class E40 extends WMEBase {
    * @param {Venue} model
    */
   onPlace (event: any, element: any, model: any) {
-    if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+    if (this.canEditVenue(model)) {
       this.createPlacePanel(event, element)
     }
   }
@@ -352,7 +330,7 @@ export class E40 extends WMEBase {
    * @param {Venue} model
    */
   onPoint (event: any, element: any, model: any) {
-    if (this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id })) {
+    if (this.canEditVenue(model)) {
       this.createPointPanel(event, element)
     }
   }
@@ -378,7 +356,7 @@ export class E40 extends WMEBase {
    */
   onVenues (event: any, element: any, models: any) {
     models = models.filter((model: any) => !model.isResidential
-      && this.wmeSDK.DataModel.Venues.hasPermissions({ venueId: model.id }))
+      && this.canEditVenue(model))
 
     if (models.length > 0) {
       if (models[0].geometry.type === 'Polygon') {
