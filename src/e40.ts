@@ -58,16 +58,17 @@ export class E40 extends WMEBase {
     /** @type {WMEUIHelperFieldset} */
     let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title)
     let options = this.settings.get('options')
+    let checkboxes: Record<string, any> = {}
     for (let item in options) {
       if (options.hasOwnProperty(item)) {
-        fsOptions.addCheckbox(
-          item,
-          I18n.t(this.name).options[item],
-          (event: any) => this.settings.set(['options', item], event.target.checked),
-          this.settings.get('options', item)
-        )
+        checkboxes[item] = {
+          title: I18n.t(this.name).options[item],
+          callback: (event: any) => this.settings.set(['options', item], event.target.checked),
+          checked: this.settings.get('options', item),
+        }
       }
     }
+    fsOptions.addCheckboxes(checkboxes)
     tab.addElement(fsOptions)
 
     tab.addDiv('text', I18n.t(this.name).help)

@@ -654,11 +654,17 @@
             /** @type {WMEUIHelperFieldset} */
             let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title);
             let options = this.settings.get('options');
+            let checkboxes = {};
             for (let item in options) {
                 if (options.hasOwnProperty(item)) {
-                    fsOptions.addCheckbox(item, I18n.t(this.name).options[item], (event) => this.settings.set(['options', item], event.target.checked), this.settings.get('options', item));
+                    checkboxes[item] = {
+                        title: I18n.t(this.name).options[item],
+                        callback: (event) => this.settings.set(['options', item], event.target.checked),
+                        checked: this.settings.get('options', item),
+                    };
                 }
             }
+            fsOptions.addCheckboxes(checkboxes);
             tab.addElement(fsOptions);
             tab.addDiv('text', I18n.t(this.name).help);
             tab.addText('info', '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version);
