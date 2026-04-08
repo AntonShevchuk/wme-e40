@@ -1,11 +1,11 @@
-.e40 .controls {
+.e40 .wme-ui-panel-content {
   display: grid;
   grid-template-columns: repeat(6, 44px);
   gap: 6px;
   padding: 0;
 }
 
-.e40 .button-toolbar {
+.e40 .wme-ui-tab-content {
   padding: 8px;
   display: flex;
   flex-wrap: wrap;
@@ -13,7 +13,7 @@
   align-items: center;
 }
 
-.e40 .button-toolbar button.e40 {
+.e40 .wme-ui-tab-content button.e40 {
   min-height: 30px;
   line-height: 25px;
   margin-bottom: 16px;
@@ -47,7 +47,7 @@
   min-height: 50px;
 }
 
-.form-group.e40 legend {
+.wme-ui-panel.e40 legend {
   cursor: pointer;
   font-size: 12px;
   font-weight: bold;
@@ -58,31 +58,31 @@
   padding: 0 8px;
 }
 
-.form-group.e40 fieldset {
+.wme-ui-panel.e40 fieldset {
   border: 1px solid #ddd;
   padding: 8px;
   width: 100%;
   margin-bottom: 16px;
 }
 
-section.tab-pane .form-group.e40 div.controls {
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content {
   display: block;
   padding: 8px;
 }
 
-section.tab-pane .form-group.e40 div.controls:empty,
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content:empty,
 #panel-container .archive-panel .body:empty {
   min-height: 20px;
 }
 
-section.tab-pane .form-group.e40 div.controls:empty::after,
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content:empty::after,
 #panel-container .archive-panel .body:empty::after {
   color: #ccc;
   padding: 0 8px;
   content: "\2014";
 }
 
-section.tab-pane .form-group.e40 div.controls label {
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content label {
   white-space: normal;
   font-weight: normal;
   margin-top: 5px;
@@ -90,11 +90,11 @@ section.tab-pane .form-group.e40 div.controls label {
   font-size: 13px;
 }
 
-section.tab-pane .form-group.e40 div.controls input[type="text"] {
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content input[type="text"] {
   float: right;
 }
 
-section.tab-pane .form-group.e40 div.controls input[type="number"] {
+section.tab-pane .wme-ui-panel.e40 .wme-ui-fieldset-content input[type="number"] {
   float: right;
   width: 60px;
   text-align: right;

@@ -399,7 +399,7 @@ export class E40 extends WMEBase {
    * @param {HTMLElement} element
    */
   createPlacePanel (event: any, element: any) {
-    if (element?.querySelector('div.form-group.e40')) {
+    if (element?.querySelector('div.wme-ui-panel.e40')) {
       return
     }
 
@@ -413,7 +413,7 @@ export class E40 extends WMEBase {
    * @param {HTMLElement} element
    */
   createPointPanel (event: any, element: any) {
-    if (element?.querySelector('div.form-group.e40')) {
+    if (element?.querySelector('div.wme-ui-panel.e40')) {
       return
     }
 
@@ -429,7 +429,7 @@ export class E40 extends WMEBase {
 
     let element = document.getElementById('venue-edit-general')
 
-        element?.querySelector('div.form-group.e40')?.remove()
+        element?.querySelector('div.wme-ui-panel.e40')?.remove()
 
     if (venue) {
       if (venue.geometry.type === 'Polygon') {
@@ -461,7 +461,7 @@ export class E40 extends WMEBase {
       label += ' (' + info.join(', ') + ')'
     }
 
-    let elm = document.querySelector('div.form-group.e40 wz-label')
+    let elm = document.querySelector('div.wme-ui-panel.e40 wz-label')
     if (elm) (elm as any).innerText = label
   }
 
