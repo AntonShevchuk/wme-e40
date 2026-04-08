@@ -52,7 +52,7 @@ export class E40 extends WMEBase {
       if (options.hasOwnProperty(item)) {
         checkboxes[item] = {
           title: WMEUI.t(NAME).options[item],
-          callback: (event: any) => this.settings.set(['options', item], event.target.checked),
+          callback: (event: any) => this.settings.set('options', item, event.target.checked),
           checked: this.settings.get('options', item),
         }
       }

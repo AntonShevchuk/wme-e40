@@ -651,7 +651,7 @@
                 if (options.hasOwnProperty(item)) {
                     checkboxes[item] = {
                         title: WMEUI.t(NAME).options[item],
-                        callback: (event) => this.settings.set(['options', item], event.target.checked),
+                        callback: (event) => this.settings.set('options', item, event.target.checked),
                         checked: this.settings.get('options', item),
                     };
                 }
