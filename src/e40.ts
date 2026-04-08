@@ -29,29 +29,29 @@ export class E40 extends WMEBase {
    */
   initTab (buttons: any) {
     let tab = this.helper.createTab(
-      I18n.t(this.name).title,
+      WMEUI.t(NAME).title,
       {
         sidebar: this.wmeSDK.Sidebar,
         image: GM_info.script.icon
       }
     )
 
-    tab.addText('description', I18n.t(this.name).description)
+    tab.addText('description', WMEUI.t(NAME).description)
 
     if (this.wmeSDK.State.getUserInfo().rank >= REQUIRED_LEVEL) {
       tab.addButtons(buttons)
     } else {
-      tab.addText('warning', I18n.t(this.name).warning)
+      tab.addText('warning', WMEUI.t(NAME).warning)
     }
 
     /** @type {WMEUIHelperFieldset} */
-    let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title)
+    let fsOptions = this.helper.createFieldset(WMEUI.t(NAME).options.title)
     let options = this.settings.get('options')
     let checkboxes: Record<string, any> = {}
     for (let item in options) {
       if (options.hasOwnProperty(item)) {
         checkboxes[item] = {
-          title: I18n.t(this.name).options[item],
+          title: WMEUI.t(NAME).options[item],
           callback: (event: any) => this.settings.set(['options', item], event.target.checked),
           checked: this.settings.get('options', item),
         }
@@ -60,7 +60,7 @@ export class E40 extends WMEBase {
     fsOptions.addCheckboxes(checkboxes)
     tab.addElement(fsOptions)
 
-    tab.addDiv('text', I18n.t(this.name).help)
+    tab.addDiv('text', WMEUI.t(NAME).help)
 
     tab.addText(
       'info',
@@ -73,14 +73,14 @@ export class E40 extends WMEBase {
 
   initPlacePanel (buttons: any) {
     this.placePanel = this.helper.createPanel(
-      I18n.t(this.name).title
+      WMEUI.t(NAME).title
     )
     this.placePanel.addButtons(buttons)
   }
 
   initPointPanel (buttons: any) {
     this.pointPanel = this.helper.createPanel(
-      I18n.t(this.name).title
+      WMEUI.t(NAME).title
     )
     this.pointPanel.addButtons(buttons)
   }
@@ -456,7 +456,7 @@ export class E40 extends WMEBase {
         info.push(Math.round(turf.area(place.geometry)) + 'm²')
       }
     }
-    let label = I18n.t(NAME).title
+    let label = WMEUI.t(NAME).title
     if (info.length) {
       label += ' (' + info.join(', ') + ')'
     }

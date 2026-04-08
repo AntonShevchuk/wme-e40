@@ -238,67 +238,67 @@
         return {
             A: {
                 title: '<i class="fa fa-circle-thin" aria-hidden="true"></i>',
-                description: I18n.t(NAME).smooth,
+                description: WMEUI.t(NAME).smooth,
                 shortcut: 'S+49',
                 callback: () => smooth()
             },
             B: {
                 title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
-                description: I18n.t(NAME).orthogonalize,
+                description: WMEUI.t(NAME).orthogonalize,
                 shortcut: 'S+50',
                 callback: () => orthogonalize()
             },
             C: {
                 title: '1️⃣ 📐',
-                description: I18n.t(NAME).simplify + ' (tolerance = 0.00001)',
+                description: WMEUI.t(NAME).simplify + ' (tolerance = 0.00001)',
                 shortcut: null,
                 callback: () => simplify(0.00001)
             },
             D: {
                 title: '3️⃣ 📐',
-                description: I18n.t(NAME).simplify + ' (tolerance = 0.00003)',
+                description: WMEUI.t(NAME).simplify + ' (tolerance = 0.00003)',
                 shortcut: null,
                 callback: () => simplify(0.00003)
             },
             E: {
                 title: '5️⃣ 📐',
-                description: I18n.t(NAME).simplify + ' (tolerance = 0.00005)',
+                description: WMEUI.t(NAME).simplify + ' (tolerance = 0.00005)',
                 shortcut: null,
                 callback: () => simplify(0.00005)
             },
             F: {
                 title: '<i class="fa fa-clone" aria-hidden="true"></i>',
-                description: I18n.t(NAME).copy,
+                description: WMEUI.t(NAME).copy,
                 shortcut: null,
                 callback: () => copyPlaces()
             },
             G: {
                 title: '<i class="fa fa-repeat" aria-hidden="true"></i>',
-                description: I18n.t(NAME).rotate,
+                description: WMEUI.t(NAME).rotate,
                 shortcut: 'S+51',
                 callback: () => enablePolygonRotation()
             },
             H: {
                 title: '<i class="fa fa-expand" aria-hidden="true"></i>',
-                description: I18n.t(NAME).scale,
+                description: WMEUI.t(NAME).scale,
                 shortcut: 'S+52',
                 callback: () => enablePolygonResize()
             },
             I: {
                 title: '500m²',
-                description: I18n.t(NAME).scale + ' 500m²',
+                description: WMEUI.t(NAME).scale + ' 500m²',
                 shortcut: 'S+53',
                 callback: () => scale(500)
             },
             J: {
                 title: '650m²',
-                description: I18n.t(NAME).scale + ' 650m²',
+                description: WMEUI.t(NAME).scale + ' 650m²',
                 shortcut: 'S+54',
                 callback: () => scale(650)
             },
             K: {
                 title: '650+',
-                description: I18n.t(NAME).scale + ' 650+',
+                description: WMEUI.t(NAME).scale + ' 650+',
                 shortcut: 'S+55',
                 callback: () => scale(650, true)
             },
@@ -308,37 +308,37 @@
         return {
             M: {
                 title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> 500m²',
-                description: I18n.t(NAME).circle,
+                description: WMEUI.t(NAME).circle,
                 shortcut: null,
                 callback: () => circle(503, 32)
             },
             N: {
                 title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> 650m²',
-                description: I18n.t(NAME).circle,
+                description: WMEUI.t(NAME).circle,
                 shortcut: null,
                 callback: () => circle(651, 64)
             },
             O: {
                 title: '<i class="fa fa-circle-thin fa-2x" aria-hidden="true"></i> R=20m',
-                description: I18n.t(NAME).circle,
+                description: WMEUI.t(NAME).circle,
                 shortcut: null,
                 callback: () => circle(1256.64, 64)
             },
             P: {
                 title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 500m²',
-                description: I18n.t(NAME).square,
+                description: WMEUI.t(NAME).square,
                 shortcut: null,
                 callback: () => square(500)
             },
             R: {
                 title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 650m²',
-                description: I18n.t(NAME).square,
+                description: WMEUI.t(NAME).square,
                 shortcut: null,
                 callback: () => square(650)
             },
             S: {
                 title: '<i class="fa fa-square-o fa-2x" aria-hidden="true"></i> 1000m²',
-                description: I18n.t(NAME).square,
+                description: WMEUI.t(NAME).square,
                 shortcut: null,
                 callback: () => square(1000)
             },
@@ -348,27 +348,27 @@
         return {
             A: {
                 title: '<i class="fa fa-square-o" aria-hidden="true"></i>',
-                description: I18n.t(NAME).orthogonalize,
+                description: WMEUI.t(NAME).orthogonalize,
                 callback: () => orthogonalizeAll()
             },
             B: {
                 title: '1️⃣ 📐',
-                description: I18n.t(NAME).simplify,
+                description: WMEUI.t(NAME).simplify,
                 callback: () => simplifyAll(0.00001)
             },
             C: {
                 title: '3️⃣ 📐',
-                description: I18n.t(NAME).simplify,
+                description: WMEUI.t(NAME).simplify,
                 callback: () => simplifyAll(0.00003)
             },
             D: {
                 title: '5️⃣ 📐',
-                description: I18n.t(NAME).simplify,
+                description: WMEUI.t(NAME).simplify,
                 callback: () => simplifyAll(0.00005)
             },
             E: {
                 title: '500+',
-                description: I18n.t(NAME).scale + ' 500m²+',
+                description: WMEUI.t(NAME).scale + ' 500m²+',
                 callback: () => scaleAll(500, true)
             }
         };
@@ -632,25 +632,25 @@
          * @param {Object} buttons
          */
         initTab(buttons) {
-            let tab = this.helper.createTab(I18n.t(this.name).title, {
+            let tab = this.helper.createTab(WMEUI.t(NAME).title, {
                 sidebar: this.wmeSDK.Sidebar,
                 image: GM_info.script.icon
             });
-            tab.addText('description', I18n.t(this.name).description);
+            tab.addText('description', WMEUI.t(NAME).description);
             if (this.wmeSDK.State.getUserInfo().rank >= REQUIRED_LEVEL) {
                 tab.addButtons(buttons);
             }
             else {
-                tab.addText('warning', I18n.t(this.name).warning);
+                tab.addText('warning', WMEUI.t(NAME).warning);
             }
             /** @type {WMEUIHelperFieldset} */
-            let fsOptions = this.helper.createFieldset(I18n.t(this.name).options.title);
+            let fsOptions = this.helper.createFieldset(WMEUI.t(NAME).options.title);
             let options = this.settings.get('options');
             let checkboxes = {};
             for (let item in options) {
                 if (options.hasOwnProperty(item)) {
                     checkboxes[item] = {
-                        title: I18n.t(this.name).options[item],
+                        title: WMEUI.t(NAME).options[item],
                         callback: (event) => this.settings.set(['options', item], event.target.checked),
                         checked: this.settings.get('options', item),
                     };
@@ -658,18 +658,18 @@
             }
             fsOptions.addCheckboxes(checkboxes);
             tab.addElement(fsOptions);
-            tab.addDiv('text', I18n.t(this.name).help);
+            tab.addDiv('text', WMEUI.t(NAME).help);
             tab.addText('info', '<a href="' + GM_info.scriptUpdateURL + '">' + GM_info.script.name + '</a> ' + GM_info.script.version);
             tab.addText('blue', 'made in');
             tab.addText('yellow', 'Ukraine');
             tab.inject();
         }
         initPlacePanel(buttons) {
-            this.placePanel = this.helper.createPanel(I18n.t(this.name).title);
+            this.placePanel = this.helper.createPanel(WMEUI.t(NAME).title);
             this.placePanel.addButtons(buttons);
         }
         initPointPanel(buttons) {
-            this.pointPanel = this.helper.createPanel(I18n.t(this.name).title);
+            this.pointPanel = this.helper.createPanel(WMEUI.t(NAME).title);
             this.pointPanel.addButtons(buttons);
         }
         initShortcuts(buttons) {
@@ -989,7 +989,7 @@
                     info.push(Math.round(turf.area(place.geometry)) + 'm²');
                 }
             }
-            let label = I18n.t(NAME).title;
+            let label = WMEUI.t(NAME).title;
             if (info.length) {
                 label += ' (' + info.join(', ') + ')';
             }
