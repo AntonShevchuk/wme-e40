@@ -1,4 +1,5 @@
-import { NAME, REQUIRED_LEVEL } from './translations'
+import { NAME } from './name'
+import { REQUIRED_LEVEL } from './translations'
 import { TYPES } from './types'
 import { layerConfig } from './layers'
 import { simplifyPolygon, normalizeRightAngles, createCirclePolygon, createSquarePolygon } from './geometry'
@@ -52,7 +53,12 @@ export class E40 extends WMEBase {
       if (options.hasOwnProperty(item)) {
         checkboxes[item] = {
           title: WMEUI.t(NAME).options[item],
-          callback: (event: any) => this.settings.set('options', item, event.target.checked),
+          callback: (event: any) => {
+            this.settings.set('options', item, event.target.checked)
+            if (item === 'navigationPointOnHover') {
+              event.target.checked ? this.initHoverHandlers() : this.destroyHoverHandlers()
+            }
+          },
           checked: this.settings.get('options', item),
         }
       }
@@ -128,27 +134,33 @@ export class E40 extends WMEBase {
     });
 
     if (this.settings.get('options', 'navigationPointOnHover')) {
-      this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" });
-
-      this.wmeSDK.Events.on({
-        eventName: "wme-layer-feature-mouse-enter",
-        eventHandler: ({ featureId }: any) => {
-          this.showVector(featureId)
-        },
-      });
-
-      this.wmeSDK.Events.on({
-        eventName: "wme-layer-feature-mouse-leave",
-        eventHandler: ({ featureId }: any) => {
-          let selected = this.getSelectedVenue()
-          if (selected?.id !== featureId) {
-            this.removeVector(
-              this.wmeSDK.DataModel.Venues.getById({ venueId : featureId })
-            )
-          }
-        },
-      });
+      this.initHoverHandlers()
     }
+  }
+
+  onMouseEnter = ({ featureId }: any) => {
+    this.showVector(featureId)
+  }
+
+  onMouseLeave = ({ featureId }: any) => {
+    let selected = this.getSelectedVenue()
+    if (selected?.id !== featureId) {
+      this.removeVector(
+        this.wmeSDK.DataModel.Venues.getById({ venueId: featureId })
+      )
+    }
+  }
+
+  initHoverHandlers () {
+    this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" })
+    this.wmeSDK.Events.on({ eventName: "wme-layer-feature-mouse-enter", eventHandler: this.onMouseEnter })
+    this.wmeSDK.Events.on({ eventName: "wme-layer-feature-mouse-leave", eventHandler: this.onMouseLeave })
+  }
+
+  destroyHoverHandlers () {
+    this.wmeSDK.Events.off({ eventName: "wme-layer-feature-mouse-enter", eventHandler: this.onMouseEnter })
+    this.wmeSDK.Events.off({ eventName: "wme-layer-feature-mouse-leave", eventHandler: this.onMouseLeave })
+    this.wmeSDK.Events.stopLayerEventsTracking({ layerName: "venues" })
   }
 
   showVector (featureId: any) {

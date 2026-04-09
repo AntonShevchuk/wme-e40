@@ -1,4 +1,4 @@
-import { NAME } from './translations'
+import { NAME } from './name'
 import { smooth, orthogonalize, simplify, copyPlaces, enablePolygonRotation, enablePolygonResize, scale, circle, square, orthogonalizeAll, simplifyAll, scaleAll } from './helpers'
 
 // https://fontawesome.com/v4/icons/

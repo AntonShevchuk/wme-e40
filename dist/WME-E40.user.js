@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.11.0
+// @version      0.12.0
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -621,6 +621,15 @@
     class E40 extends WMEBase {
         constructor(name, settings, tabButtons, placeButtons, pointButtons) {
             super(name, settings);
+            this.onMouseEnter = ({ featureId }) => {
+                this.showVector(featureId);
+            };
+            this.onMouseLeave = ({ featureId }) => {
+                let selected = this.getSelectedVenue();
+                if (selected?.id !== featureId) {
+                    this.removeVector(this.wmeSDK.DataModel.Venues.getById({ venueId: featureId }));
+                }
+            };
             this.initTab(tabButtons);
             this.initPlacePanel(placeButtons);
             this.initShortcuts(placeButtons);
@@ -652,7 +661,12 @@
                 if (options.hasOwnProperty(item)) {
                     checkboxes[item] = {
                         title: WMEUI.t(NAME).options[item],
-                        callback: (event) => this.settings.set('options', item, event.target.checked),
+                        callback: (event) => {
+                            this.settings.set('options', item, event.target.checked);
+                            if (item === 'navigationPointOnHover') {
+                                event.target.checked ? this.initHoverHandlers() : this.destroyHoverHandlers();
+                            }
+                        },
                         checked: this.settings.get('options', item),
                     };
                 }
@@ -709,23 +723,18 @@
                 }
             });
             if (this.settings.get('options', 'navigationPointOnHover')) {
-                this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" });
-                this.wmeSDK.Events.on({
-                    eventName: "wme-layer-feature-mouse-enter",
-                    eventHandler: ({ featureId }) => {
-                        this.showVector(featureId);
-                    },
-                });
-                this.wmeSDK.Events.on({
-                    eventName: "wme-layer-feature-mouse-leave",
-                    eventHandler: ({ featureId }) => {
-                        let selected = this.getSelectedVenue();
-                        if (selected?.id !== featureId) {
-                            this.removeVector(this.wmeSDK.DataModel.Venues.getById({ venueId: featureId }));
-                        }
-                    },
-                });
+                this.initHoverHandlers();
             }
+        }
+        initHoverHandlers() {
+            this.wmeSDK.Events.trackLayerEvents({ layerName: "venues" });
+            this.wmeSDK.Events.on({ eventName: "wme-layer-feature-mouse-enter", eventHandler: this.onMouseEnter });
+            this.wmeSDK.Events.on({ eventName: "wme-layer-feature-mouse-leave", eventHandler: this.onMouseLeave });
+        }
+        destroyHoverHandlers() {
+            this.wmeSDK.Events.off({ eventName: "wme-layer-feature-mouse-enter", eventHandler: this.onMouseEnter });
+            this.wmeSDK.Events.off({ eventName: "wme-layer-feature-mouse-leave", eventHandler: this.onMouseLeave });
+            this.wmeSDK.Events.stopLayerEventsTracking({ layerName: "venues" });
         }
         showVector(featureId) {
             let venue = this.wmeSDK.DataModel.Venues.getById({ venueId: featureId });

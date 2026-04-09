@@ -1,4 +1,5 @@
-import { NAME, TRANSLATION } from './translations'
+import { NAME } from './name'
+import { TRANSLATION } from './translations'
 import { SETTINGS } from './settings'
 import { getPlaceButtons, getPointButtons, getTabButtons } from './buttons'
 import { E40 } from './e40'

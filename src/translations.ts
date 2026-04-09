@@ -1,5 +1,3 @@
-export const NAME = 'E40'
-
 // User level required for apply geometry for all entities in the view area
 export const REQUIRED_LEVEL = 2
 
