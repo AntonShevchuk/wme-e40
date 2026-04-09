@@ -19,7 +19,7 @@
 // @require      https://update.greasyfork.org/scripts/571719/1793257/GeoUtils.js
 // @require      https://update.greasyfork.org/scripts/450160/1792042/WME-Bootstrap.js
 // @require      https://update.greasyfork.org/scripts/450221/1793261/WME-Base.js
-// @require      https://update.greasyfork.org/scripts/450320/1793862/WME-UI.js
+// @require      https://update.greasyfork.org/scripts/450320/1794414/WME-UI.js
 //
 // @require      https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js
 // ==/UserScript==
@@ -28,6 +28,7 @@
     'use strict';
 
     const NAME = 'E40';
+
     // User level required for apply geometry for all entities in the view area
     const REQUIRED_LEVEL = 2;
     // Translations
