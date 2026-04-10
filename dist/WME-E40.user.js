@@ -2,7 +2,7 @@
 // @name         WME E40 Geometry
 // @name:uk      WME 🇺🇦 E40 Geometry
 // @name:ru      WME 🇺🇦 E40 Geometry
-// @version      0.12.0
+// @version      0.13.0
 // @description  A script that allows aligning, scaling, and copying POI geometry
 // @description:uk За допомогою цього скрипта ви можете легко змінювати площу та вирівнювати POI
 // @description:ru Данный скрипт позволяет изменять площадь POI, выравнивать и копировать геометрию
@@ -15,7 +15,7 @@
 // @exclude      https://*.waze.com/user/editor*
 // @icon         data:image/png;base64,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
 // @grant        none
-// @require      https://update.greasyfork.org/scripts/389765/1793258/CommonUtils.js
+// @require      https://update.greasyfork.org/scripts/389765/1794584/CommonUtils.js
 // @require      https://update.greasyfork.org/scripts/571719/1793257/GeoUtils.js
 // @require      https://update.greasyfork.org/scripts/450160/1792042/WME-Bootstrap.js
 // @require      https://update.greasyfork.org/scripts/450221/1793261/WME-Base.js
@@ -52,7 +52,7 @@
             circle: 'Circle',
             square: 'Square',
             copy: 'Copy',
-            about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
+            about: '<a href="https://greasyfork.org/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
         },
         'uk': {
             title: 'Геометрія POI',
@@ -571,51 +571,136 @@
         };
     }
     /**
-     * Moves vertices (P_curr) that form a near-90° angle (85-89.9 or 90.1-95)
-     * to a new position (P'_curr) that forms exactly 90°.
-     * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
-     * @returns {object} The angle-normalized GeoJSON Polygon geometry object.
+     * Orthogonalize polygon geometry using iterative gradient descent.
+     * Adjusts vertices to make angles multiples of 90° while preserving shape.
+     * Based on the iD editor algorithm (used in OpenStreetMap).
+     *
+     * @param geojsonObject - GeoJSON Polygon object
+     * @param threshold - Angle threshold in degrees (default 12)
+     * @returns GeoJSON Polygon with orthogonalized coordinates
      */
-    function normalizeRightAngles(geojsonObject) {
-        let points = geojsonObject.coordinates[0].slice();
-        let pointsAdjusted = 0;
-        let totalIterations = 0;
-        let changedInPass = true;
-        console.log("--- Starting Angle Normalization (Near 90° adjustment) ---");
-        // Iterate until no points are adjusted in a full pass
-        while (changedInPass && totalIterations < 10) { // Safety limit for iterations
-            changedInPass = false;
-            totalIterations++;
-            console.log(`[Iter ${totalIterations}] Start`);
-            // Check points from index 1 up to length - 2.
-            for (let i = 1; i < points.length; i++) {
-                const pPrev = points[i - 1];
-                const pCurr = points[i];
-                const pNext = (i === points.length - 1) ? points[1] : points[i + 1];
-                const angle = GeoUtils.findAngle(pPrev, pCurr, pNext);
-                console.log(`[Point ${i}] Angle:`, angle.toFixed(4));
-                // Check if the angle is in the target normalization ranges
-                const inRange1 = angle >= 75.0 && angle <= 89.9;
-                const inRange2 = angle >= 90.1 && angle <= 105.0;
-                if (inRange1 || inRange2) {
-                    // Round coordinates to 6 decimal places for GeoJSON compatibility
-                    points[i] = GeoUtils.findRightAngleIntersection(pPrev, pCurr, pNext);
-                    let new_angle = GeoUtils.findAngle(pPrev, points[i], pNext);
-                    pointsAdjusted++;
-                    changedInPass = true;
-                    console.log(`[Point ${i}] Angle ${angle.toFixed(4)}° adjusted to ${new_angle.toFixed(4)}°.`);
-                    // The loop continues in the same pass. If points[i] is adjusted,
-                    // it affects the angle calculations for P_{i-1} and P_{i+1} in the next passes.
+    function normalizeRightAngles(geojsonObject, threshold = 12) {
+        const lowerThreshold = Math.cos(((90 - threshold) * Math.PI) / 180);
+        const upperThreshold = Math.cos((threshold * Math.PI) / 180);
+        const epsilon = 1e-4;
+        let nodes = structuredClone(geojsonObject.coordinates[0]);
+        // Work in Mercator projection to avoid lat/lon distortion
+        let points = nodes.slice(0, -1).map((n) => [n[0], lat2latp(n[1])]);
+        let corner = { i: 0, dotp: 1 };
+        // Special case: triangles — only move the least-square corner
+        if (points.length === 3) {
+            for (let i = 0; i < 1000; i++) {
+                let motions = points.map((b, i, arr) => calcMotion(b, i, arr));
+                let tmp = addPts(points[corner.i], motions[corner.i]);
+                points[corner.i][0] = tmp[0];
+                points[corner.i][1] = tmp[1];
+                if (corner.dotp < epsilon)
+                    break;
+            }
+            let n = points[corner.i];
+            n[1] = latp2lat(n[1]);
+            let id = nodes[corner.i].toString();
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].toString() === id) {
+                    nodes[i][0] = n[0];
+                    nodes[i][1] = n[1];
+                }
+            }
+            return { type: 'Polygon', coordinates: [nodes] };
+        }
+        // General case: gradient descent minimizing squareness
+        const originalPoints = nodes.slice(0, -1).map((n) => [n[0], lat2latp(n[1])]);
+        let score = Number.POSITIVE_INFINITY;
+        for (let i = 0; i < 1000 && !(score < epsilon); i++) {
+            let motions = points.map((b, i, arr) => calcMotion(b, i, arr));
+            for (let j = 0; j < motions.length; j++) {
+                let tmp = addPts(points[j], motions[j]);
+                points[j][0] = tmp[0];
+                points[j][1] = tmp[1];
+            }
+            let newScore = squareness(points);
+            if (newScore < score)
+                score = newScore;
+        }
+        // Apply changes back to nodes
+        for (let i = 0; i < points.length; i++) {
+            if (originalPoints[i][0] !== points[i][0] || originalPoints[i][1] !== points[i][1]) {
+                let n = points[i];
+                n[1] = latp2lat(n[1]);
+                let id = nodes[i].toString();
+                for (let j = 0; j < nodes.length; j++) {
+                    if (nodes[j].toString() === id) {
+                        nodes[j][0] = n[0];
+                        nodes[j][1] = n[1];
+                    }
                 }
             }
         }
-        // Ensure the closure point is updated after all adjustments
-        points[points.length - 1] = points[0];
-        console.log(`--- Normalization Finished. Total points adjusted: ${pointsAdjusted} in ${totalIterations} passes. ---`);
-        return {
-            type: "Polygon",
-            coordinates: [points]
-        };
+        // Remove collinear points (angle ~180°)
+        for (let i = 0; i < points.length; i++) {
+            let dotp = normalizedDotProduct(i, points);
+            if (dotp < -1 + epsilon) {
+                let id = nodes[i].toString();
+                for (let j = 0; j < nodes.length; j++) {
+                    if (nodes[j].toString() === id) {
+                        nodes[j] = false;
+                    }
+                }
+            }
+        }
+        nodes = nodes.filter((item) => item !== false);
+        return { type: 'Polygon', coordinates: [nodes] };
+        function calcMotion(b, i, array) {
+            let a = array[(i - 1 + array.length) % array.length];
+            let c = array[(i + 1) % array.length];
+            let p = subPts(a, b);
+            let q = subPts(c, b);
+            let scale = 2 * Math.min(dist(p, [0, 0]), dist(q, [0, 0]));
+            p = normPt(p, 1.0);
+            q = normPt(q, 1.0);
+            let dotp = filterDotProduct(p[0] * q[0] + p[1] * q[1]);
+            if (array.length > 3) {
+                if (dotp < -Math.SQRT1_2)
+                    dotp += 1.0;
+            }
+            else if (dotp && Math.abs(dotp) < corner.dotp) {
+                corner.i = i;
+                corner.dotp = Math.abs(dotp);
+            }
+            return normPt(addPts(p, q), 0.1 * dotp * scale);
+        }
+        function squareness(pts) {
+            return pts.reduce((sum, _, i, arr) => {
+                let dotp = filterDotProduct(normalizedDotProduct(i, arr));
+                return sum + 2.0 * Math.min(Math.abs(dotp - 1.0), Math.min(Math.abs(dotp), Math.abs(dotp + 1)));
+            }, 0);
+        }
+        function normalizedDotProduct(i, pts) {
+            let a = pts[(i - 1 + pts.length) % pts.length];
+            let b = pts[i];
+            let c = pts[(i + 1) % pts.length];
+            let p = normPt(subPts(a, b), 1.0);
+            let q = normPt(subPts(c, b), 1.0);
+            return p[0] * q[0] + p[1] * q[1];
+        }
+        function filterDotProduct(dotp) {
+            if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold)
+                return dotp;
+            return 0;
+        }
+        function addPts(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+        function subPts(a, b) { return [a[0] - b[0], a[1] - b[1]]; }
+        function dist(a, b) { return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2); }
+        function normPt(p, s) {
+            let l = Math.sqrt(p[0] * p[0] + p[1] * p[1]);
+            return l === 0 ? [0, 0] : [p[0] / l * s, p[1] / l * s];
+        }
+    }
+    function lat2latp(lat) {
+        return (180 / Math.PI) * Math.log(Math.tan(Math.PI / 4 + (lat * (Math.PI / 180)) / 2));
+    }
+    function latp2lat(a) {
+        return (180 / Math.PI) * (2 * Math.atan(Math.exp((a * Math.PI) / 180)) - Math.PI / 2);
     }
 
     class E40 extends WMEBase {

@@ -22,7 +22,7 @@ export const TRANSLATION: Record<string, any> = {
     circle: 'Circle',
     square: 'Square',
     copy: 'Copy',
-    about: '<a href="https://greasyfork.org/uk/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
+    about: '<a href="https://greasyfork.org/scripts/388271-wme-e40-geometry">WME E40 Geometry</a>',
   },
   'uk': {
     title: 'Геометрія POI',

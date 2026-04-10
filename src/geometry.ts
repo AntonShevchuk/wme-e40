@@ -160,65 +160,146 @@ export function simplifyPolygon(geojsonObject: any) {
 }
 
 /**
- * Moves vertices (P_curr) that form a near-90° angle (85-89.9 or 90.1-95)
- * to a new position (P'_curr) that forms exactly 90°.
- * @param {object} geojsonObject A GeoJSON Feature<Polygon> or Polygon geometry object.
- * @returns {object} The angle-normalized GeoJSON Polygon geometry object.
+ * Orthogonalize polygon geometry using iterative gradient descent.
+ * Adjusts vertices to make angles multiples of 90° while preserving shape.
+ * Based on the iD editor algorithm (used in OpenStreetMap).
+ *
+ * @param geojsonObject - GeoJSON Polygon object
+ * @param threshold - Angle threshold in degrees (default 12)
+ * @returns GeoJSON Polygon with orthogonalized coordinates
  */
-export function normalizeRightAngles(geojsonObject: any) {
-  let points = geojsonObject.coordinates[0].slice()
+export function normalizeRightAngles(geojsonObject: any, threshold = 12) {
+  const lowerThreshold = Math.cos(((90 - threshold) * Math.PI) / 180)
+  const upperThreshold = Math.cos((threshold * Math.PI) / 180)
+  const epsilon = 1e-4
 
-  let pointsAdjusted = 0;
-  let totalIterations = 0;
-  let changedInPass = true;
+  let nodes = structuredClone(geojsonObject.coordinates[0]) as any[]
 
-  console.log("--- Starting Angle Normalization (Near 90° adjustment) ---");
+  // Work in Mercator projection to avoid lat/lon distortion
+  let points = nodes.slice(0, -1).map((n: number[]) => [n[0], lat2latp(n[1])])
 
-  // Iterate until no points are adjusted in a full pass
-  while (changedInPass && totalIterations < 10) { // Safety limit for iterations
-    changedInPass = false;
-    totalIterations++;
+  let corner = { i: 0, dotp: 1 }
 
-    console.log(`[Iter ${totalIterations}] Start`)
+  // Special case: triangles — only move the least-square corner
+  if (points.length === 3) {
+    for (let i = 0; i < 1000; i++) {
+      let motions = points.map((b, i, arr) => calcMotion(b, i, arr))
+      let tmp = addPts(points[corner.i], motions[corner.i])
+      points[corner.i][0] = tmp[0]
+      points[corner.i][1] = tmp[1]
+      if (corner.dotp < epsilon) break
+    }
+    let n = points[corner.i]
+    n[1] = latp2lat(n[1])
+    let id = nodes[corner.i].toString()
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].toString() === id) {
+        nodes[i][0] = n[0]
+        nodes[i][1] = n[1]
+      }
+    }
+    return { type: 'Polygon', coordinates: [nodes] }
+  }
 
-    // Check points from index 1 up to length - 2.
-    for (let i = 1; i < points.length; i++) {
-      const pPrev = points[i - 1];
-      const pCurr = points[i];
-      const pNext = (i === points.length - 1) ? points[1] : points[i + 1];
+  // General case: gradient descent minimizing squareness
+  const originalPoints = nodes.slice(0, -1).map((n: number[]) => [n[0], lat2latp(n[1])])
+  let score = Number.POSITIVE_INFINITY
 
-      const angle = GeoUtils.findAngle(pPrev, pCurr, pNext);
+  for (let i = 0; i < 1000 && !(score < epsilon); i++) {
+    let motions = points.map((b, i, arr) => calcMotion(b, i, arr))
+    for (let j = 0; j < motions.length; j++) {
+      let tmp = addPts(points[j], motions[j])
+      points[j][0] = tmp[0]
+      points[j][1] = tmp[1]
+    }
+    let newScore = squareness(points)
+    if (newScore < score) score = newScore
+  }
 
-      console.log(`[Point ${i}] Angle:`, angle.toFixed(4))
-
-      // Check if the angle is in the target normalization ranges
-      const inRange1 = angle >= 75.0 && angle <= 89.9;
-      const inRange2 = angle >= 90.1 && angle <= 105.0;
-
-      if (inRange1 || inRange2) {
-
-        // Round coordinates to 6 decimal places for GeoJSON compatibility
-        points[i] = GeoUtils.findRightAngleIntersection(pPrev, pCurr, pNext)
-
-        let new_angle = GeoUtils.findAngle(pPrev, points[i], pNext);
-
-        pointsAdjusted++;
-        changedInPass = true;
-        console.log(`[Point ${i}] Angle ${angle.toFixed(4)}° adjusted to ${new_angle.toFixed(4)}°.`);
-
-        // The loop continues in the same pass. If points[i] is adjusted,
-        // it affects the angle calculations for P_{i-1} and P_{i+1} in the next passes.
+  // Apply changes back to nodes
+  for (let i = 0; i < points.length; i++) {
+    if (originalPoints[i][0] !== points[i][0] || originalPoints[i][1] !== points[i][1]) {
+      let n = points[i]
+      n[1] = latp2lat(n[1])
+      let id = nodes[i].toString()
+      for (let j = 0; j < nodes.length; j++) {
+        if (nodes[j].toString() === id) {
+          nodes[j][0] = n[0]
+          nodes[j][1] = n[1]
+        }
       }
     }
   }
 
-  // Ensure the closure point is updated after all adjustments
-  points[points.length - 1] = points[0];
+  // Remove collinear points (angle ~180°)
+  for (let i = 0; i < points.length; i++) {
+    let dotp = normalizedDotProduct(i, points)
+    if (dotp < -1 + epsilon) {
+      let id = nodes[i].toString()
+      for (let j = 0; j < nodes.length; j++) {
+        if (nodes[j].toString() === id) {
+          nodes[j] = false as any
+        }
+      }
+    }
+  }
 
-  console.log(`--- Normalization Finished. Total points adjusted: ${pointsAdjusted} in ${totalIterations} passes. ---`);
+  nodes = nodes.filter((item: any) => item !== false)
 
-  return {
-    type: "Polygon",
-    coordinates: [points]
-  };
+  return { type: 'Polygon', coordinates: [nodes] }
+
+  function calcMotion(b: number[], i: number, array: number[][]) {
+    let a = array[(i - 1 + array.length) % array.length]
+    let c = array[(i + 1) % array.length]
+    let p = subPts(a, b)
+    let q = subPts(c, b)
+    let scale = 2 * Math.min(dist(p, [0, 0]), dist(q, [0, 0]))
+    p = normPt(p, 1.0)
+    q = normPt(q, 1.0)
+    let dotp = filterDotProduct(p[0] * q[0] + p[1] * q[1])
+    if (array.length > 3) {
+      if (dotp < -Math.SQRT1_2) dotp += 1.0
+    } else if (dotp && Math.abs(dotp) < corner.dotp) {
+      corner.i = i
+      corner.dotp = Math.abs(dotp)
+    }
+    return normPt(addPts(p, q), 0.1 * dotp * scale)
+  }
+
+  function squareness(pts: number[][]) {
+    return pts.reduce((sum, _, i, arr) => {
+      let dotp = filterDotProduct(normalizedDotProduct(i, arr))
+      return sum + 2.0 * Math.min(Math.abs(dotp - 1.0), Math.min(Math.abs(dotp), Math.abs(dotp + 1)))
+    }, 0)
+  }
+
+  function normalizedDotProduct(i: number, pts: number[][]) {
+    let a = pts[(i - 1 + pts.length) % pts.length]
+    let b = pts[i]
+    let c = pts[(i + 1) % pts.length]
+    let p = normPt(subPts(a, b), 1.0)
+    let q = normPt(subPts(c, b), 1.0)
+    return p[0] * q[0] + p[1] * q[1]
+  }
+
+  function filterDotProduct(dotp: number) {
+    if (lowerThreshold > Math.abs(dotp) || Math.abs(dotp) > upperThreshold) return dotp
+    return 0
+  }
+
+  function addPts(a: number[], b: number[]) { return [a[0] + b[0], a[1] + b[1]] }
+  function subPts(a: number[], b: number[]) { return [a[0] - b[0], a[1] - b[1]] }
+  function dist(a: number[], b: number[]) { return Math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2) }
+  function normPt(p: number[], s: number) {
+    let l = Math.sqrt(p[0]*p[0] + p[1]*p[1])
+    return l === 0 ? [0, 0] : [p[0]/l*s, p[1]/l*s]
+  }
+}
+
+function lat2latp(lat: number) {
+  return (180 / Math.PI) * Math.log(Math.tan(Math.PI / 4 + (lat * (Math.PI / 180)) / 2))
+}
+
+function latp2lat(a: number) {
+  return (180 / Math.PI) * (2 * Math.atan(Math.exp((a * Math.PI) / 180)) - Math.PI / 2)
 }
